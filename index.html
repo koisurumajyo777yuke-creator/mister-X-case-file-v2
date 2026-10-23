@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ミスターXからの挑戦状 — 事件ファイル Ver.2 考察編</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#080b12;color:#eee;font-family:serif;text-align:center}
+  main{max-width:750px;margin:0 auto;min-height:100vh;background:#101620;padding:0 0 34px}
+  img.scene{width:100%;max-height:64vh;object-fit:contain;display:block;background:#05070a}
+  h1{font-size:23px;margin:18px 12px}h2{font-size:19px;margin:18px 12px}
+  p{line-height:1.9;margin:18px 20px}
+  button,.action{display:block;width:90%;margin:14px auto;padding:16px;background:#18283a;color:#fff;border:1px solid #77879a;border-radius:8px;font:inherit;font-size:16px;text-decoration:none;cursor:pointer}
+  button:active,.action:active{background:#5b2530}
+  .note{color:#bac2cc;font-size:13px}
+  [hidden]{display:none !important}
+  .alert{color:#e9bdc0}
+  .symbol{font-size:30px;line-height:1.2;padding-top:48px}
+</style>
+</head>
+<body>
+<main>
+  <!-- ver1 と ver2 が同じオリジン（同じ GitHub Pages ドメイン）にあることを前提とする。 -->
+  <!-- 本ファイルは「Ver.2への入口」を確認するための試作。事件資料や謎解きは未実装。 -->
+  <section id="locked" hidden>
+    <div class="symbol">🔒</div>
+    <h1>事件ファイル Ver.2 考察編</h1>
+    <h2 class="alert">捜査記録が確認できません</h2>
+    <p>考察編に進むには、先に事件ファイル Ver.1で12個のピンを集め、捜査記録を終了してください。</p>
+    <a class="action" href="../mister-X-case-file-v1/">Ver.1の事件ファイルへ戻る</a>
+    <p class="note">クリア記録は、同じブラウザの同じサイトに保存されます。<br>別の端末・プライベートブラウズ・閲覧データの消去後は確認できない場合があります。</p>
+  </section>
+  <section id="unlocked" hidden>
+    <img class="scene" src="v2_pc_room.png" alt="薄暗い捜査本部の机に置かれたデスクトップパソコン">
+    <h1>ミスターXからの挑戦状</h1>
+    <h2>事件ファイル Ver.2 考察編</h2>
+    <p>Ver.1の捜査記録を確認しました。</p>
+    <p>捜査本部の机には、新しい資料を照合するためのパソコンが置かれている。</p>
+    <button type="button" id="pcButton">机のパソコンを調べる</button>
+    <section id="pcScreen" hidden>
+      <h2>捜査資料照合システム</h2>
+      <p>Ver.2への接続を確認できました。</p>
+      <p class="note">現在は入口の動作確認用です。Aちゃん〜Eちゃんの画像照合や刑事達の会話は、次の制作段階で追加します。</p>
+      <button type="button" id="backButton">捜査本部へ戻る</button>
+    </section>
+  </section>
+</main>
+<script>
+(function(){
+  "use strict";
+  // Ver.1 の「caseV1Ending()」で、全12ピン取得後に記録されるキー。
+  const UNLOCK_KEY = "caseV1Ver2Unlocked";
+  let unlocked = false;
+  try {
+    unlocked = window.localStorage.getItem(UNLOCK_KEY) === "1";
+  } catch (error) {
+    // ストレージが利用できないときは入口を閉じたままにする。
+    unlocked = false;
+  }
+  document.getElementById(unlocked ? "unlocked" : "locked").hidden = false;
+  if (!unlocked) return;
+  const pcScreen = document.getElementById("pcScreen");
+  const pcButton = document.getElementById("pcButton");
+  pcButton.addEventListener("click", function(){
+    pcScreen.hidden = false;
+    pcButton.hidden = true;
+    pcScreen.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  document.getElementById("backButton").addEventListener("click", function(){
+    pcScreen.hidden = true;
+    pcButton.hidden = false;
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+})();
+</script>
+</body>
+</html>
