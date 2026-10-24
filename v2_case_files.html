@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ミスターXからの挑戦状 事件ファイル Ver.2 | 捜査資料照合システム</title>
+<style>
+  :root{color-scheme:dark;--bg:#0d1420;--panel:#111b2b;--button:#1a2d43;--stroke:#6d7f92;--paper:#eff1f5;--muted:#a8b2bf}
+  *{box-sizing:border-box}
+  html{background:#070b11}body{margin:0;background:var(--bg);color:#f4f3f2;text-align:center;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;min-height:100vh}
+  main{width:min(100%,760px);margin:auto;padding-bottom:55px;min-height:100vh}
+  .cover{width:100%;max-height:52vh;object-fit:cover;display:block;background:#060b14}
+  .eyebrow{font-family:system-ui,sans-serif;font-size:12px;color:#b7c7d9;letter-spacing:.15em;margin:25px 10px 12px}
+  h1{font-size:clamp(22px,5.6vw,29px);margin:18px 12px 10px;line-height:1.55;font-weight:600}
+  h2{font-size:clamp(19px,4.5vw,25px);margin:27px 12px 13px;font-weight:600}
+  p{line-height:1.85;font-size:16px;padding:0 15px;margin:16px auto;max-width:650px}
+  .sub{font-size:13px;color:var(--muted);line-height:1.9}
+  .actions{margin:26px 18px;display:grid;gap:13px}
+  button,a.btn{cursor:pointer;font-family:inherit;display:block;background:var(--button);color:#fff;border:1px solid var(--stroke);border-radius:9px;width:100%;padding:16px 12px;font-size:17px;line-height:1.45;text-align:center;text-decoration:none}
+  button:active,a.btn:active{background:#314b65}
+  button:focus-visible,a.btn:focus-visible{outline:3px solid #9fc3ff;outline-offset:3px}
+  .small-btn{font-size:15px;padding:12px 9px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .case-list{display:grid;gap:12px;margin:24px 18px}
+  .case-button{display:flex;align-items:center;justify-content:space-between;padding:19px 20px;font-size:19px}
+  .case-button span{font-family:system-ui,sans-serif;font-size:12px;color:#c6d2e0}
+  .section-note{font-size:13px;color:#c3cbd5;padding:0 20px}
+  .files{margin:22px 15px 35px;display:grid;gap:20px}
+  .file-card{border:1px solid #3c4b5d;border-radius:9px;overflow:hidden;background:#101827;text-align:left}
+  .file-photo{display:block;width:100%;max-height:60vh;object-fit:contain;background:#03070c;cursor:zoom-in}
+  .file-label{font-size:17px;line-height:1.65;padding:12px 15px 0}
+  .filename{font:12px/1.7 system-ui,sans-serif;color:#aabaca;overflow-wrap:anywhere;padding:5px 15px 14px}
+  .missing{display:none}
+  .top-actions{margin:20px 15px 8px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .full-zoom{position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:10;display:flex;align-items:center;justify-content:center;padding:65px 5px 10px}
+  .full-zoom img{max-width:100%;max-height:calc(100vh - 100px);object-fit:contain}
+  .full-zoom button{position:absolute;top:10px;right:10px;width:auto;padding:10px 18px;background:#26354a;font-size:14px}
+  [hidden]{display:none!important}
+  footer{font-size:12px;color:#8292a4;padding:32px 17px;line-height:1.9}
+</style>
+</head>
+<body>
+<main>
+  <section id="home">
+    <img class="cover" src="v2_pc_room.png" alt="捜査本部のパソコン" onerror="this.style.display='none'">
+    <div class="eyebrow">INVESTIGATION MATERIALS / VERSION 2</div>
+    <h1>ミスターXからの挑戦状</h1>
+    <h2>事件ファイル Ver.2 考察編</h2>
+    <p>捜査資料照合システム</p>
+    <p class="sub">地点の位置関係、経路、当時の資料を比較してください。資料に記録された内容と推測は区別して考えてください。</p>
+    <div class="actions">
+      <button type="button" id="openCaseList">事件資料を照合する</button>
+      <a class="btn" href="./">捜査本部へ戻る</a>
+    </div>
+  </section>
+  <section id="cases" hidden>
+    <div class="eyebrow">CASE FILES</div>
+    <h1>捜査資料一覧</h1>
+    <p class="sub">事件ファイルを選択してください。現在の地図や参考資料は、事件当時の状況そのものを示すものではありません。</p>
+    <div class="case-list">
+      <button class="case-button" data-group="a">事件ファイル A <span id="count-a">資料を開く</span></button>
+      <button class="case-button" data-group="b">事件ファイル B <span id="count-b">資料を開く</span></button>
+      <button class="case-button" data-group="c">事件ファイル C <span id="count-c">資料を開く</span></button>
+      <button class="case-button" data-group="d">事件ファイル D <span id="count-d">資料を開く</span></button>
+      <button class="case-button" data-group="e">事件ファイル E <span id="count-e">資料を開く</span></button>
+      <button class="case-button" data-group="compare">5件の比較資料 <span id="count-compare">資料を開く</span></button>
+      <button class="case-button" data-group="team">捜査チーム <span id="count-team">資料を開く</span></button>
+    </div>
+    <div class="actions"><button id="homeButton">パソコン画面へ戻る</button></div>
+  </section>
+  <section id="detail" hidden>
+    <div class="eyebrow">EVIDENCE REVIEW</div>
+    <h1 id="detailTitle"></h1>
+    <p class="sub">画像を押すと拡大できます。資料は周辺参考位置や比較用の地図です。</p>
+    <div class="top-actions"><button class="small-btn" id="listBack">資料一覧へ</button><a class="btn small-btn" href="./">捜査本部へ戻る</a></div>
+    <div id="files" class="files"></div>
+  </section>
+  <footer>製作：恋する魔女 ｜ 検証資料・考察編<br>実在事件の資料と創作演出を混同せず、断定を避けて取り扱ってください。</footer>
+</main>
+<div id="zoom" class="full-zoom" hidden role="dialog" aria-label="画像を拡大表示">
+  <button id="closeZoom" type="button">閉じる ×</button><img id="zoomImg" alt="拡大した資料">
+</div>
+<script>
+"use strict";
+// GitHubの公開リポジトリから実際のファイル名を取得。取得できない場合も既知の資料は表示します。
+const REPO = "koisurumajyo777yuke-creator/mister-X-case-file-v2";
+const knownFiles = [
+ "a_discovery_map.PNG","a_home_map.PNG","a_route_map.PNG","a_shrine_map.PNG",
+ "b_discovery_map.PNG","b_home_map.PNG","b_lastseen_to_school_walk.PNG","b_old_map.PNG","b_old_shop_map.PNG",
+ "c_discovery_map.PNG","c_lastseen_map.PNG","c_old_map.PNG","c_park_map.PNG","c_route_car.PNG",
+ "d_discovery_map.PNG","d_lastseen_map.PNG","e_lastseen_map.PNG",
+ "v2_pc_room.png","V2_investigation_team.PNG"
+];
+let imageFiles = [...knownFiles];
+const id = s => document.getElementById(s);
+const groups = {a:"事件ファイル A",b:"事件ファイル B",c:"事件ファイル C",d:"事件ファイル D",e:"事件ファイル E",compare:"5件の比較資料",team:"捜査チーム"};
+const labels = {
+ a_discovery_map:"遺体発見現場周辺の地図",a_home_map:"自宅周辺の地図",a_route_map:"経路を確認する地図",a_shrine_map:"神社周辺の地図",
+ b_discovery_map:"遺体発見現場周辺の地図",b_home_map:"自宅周辺の地図",b_lastseen_to_school_walk:"徒歩経路を比較する地図",b_old_map:"当時の資料にある略図",b_old_shop_map:"旧店舗跡周辺の地図",
+ c_discovery_map:"遺体発見現場周辺の地図",c_lastseen_map:"最終目撃地点周辺の地図",c_old_map:"当時の資料にある略図",c_park_map:"尾島公園周辺の地図",c_route_car:"車での経路を確認する地図",
+ d_discovery_map:"遺体発見現場周辺の地図",d_lastseen_map:"最終目撃地点周辺の地図",e_lastseen_map:"最終目撃地点周辺の地図",
+ v2_pc_room:"捜査資料照合用パソコン",V2_investigation_team:"捜査チーム"
+};
+function fileGroup(filename){
+ if(/^a_/i.test(filename))return "a";
+ if(/^b_/i.test(filename))return "b";
+ if(/^c_/i.test(filename))return "c";
+ if(/^d_/i.test(filename))return "d";
+ if(/^e_/i.test(filename))return "e";
+ if(/^five_pins_/i.test(filename))return "compare";
+ if(/^(v2_pc_room|V2_investigation_team)\./i.test(filename))return "team";
+ return "";
+}
+function show(which){for(const name of ["home","cases","detail"]) id(name).hidden = name!==which;window.scrollTo(0,0)}
+function fileUrl(filename){return "./"+encodeURIComponent(filename)}
+function renderCounts(){Object.keys(groups).forEach(g=>{const n=imageFiles.filter(f=>fileGroup(f)===g).length; id("count-"+g).textContent=n?`${n}点`:'資料を確認中';})}
+function showGroup(g){
+ id("detailTitle").textContent=groups[g];
+ const holder=id("files");holder.replaceChildren();
+ const subset=imageFiles.filter(f=>fileGroup(f)===g);
+ if(!subset.length){const p=document.createElement("p");p.textContent="該当する画像はまだ登録されていません。";holder.append(p)}
+ for(const f of subset){
+  const card=document.createElement("article");card.className="file-card";
+  const im=document.createElement("img");im.className="file-photo";im.loading="lazy";im.alt=labels[f.replace(/\.[^.]+$/,"")]||f;im.src=fileUrl(f);
+  im.onerror=()=>{card.classList.add("missing")};
+  im.onclick=()=>{id("zoomImg").src=im.src;id("zoomImg").alt=im.alt;id("zoom").hidden=false};
+  const name=document.createElement("div");name.className="file-label";name.textContent=im.alt;
+  const fn=document.createElement("div");fn.className="filename";fn.textContent=f;
+  card.append(im,name,fn);holder.append(card);
+ }
+ show("detail");
+}
+id("openCaseList").onclick=()=>show("cases");
+id("homeButton").onclick=()=>show("home");
+id("listBack").onclick=()=>show("cases");
+id("closeZoom").onclick=()=>id("zoom").hidden=true;
+id("zoom").onclick=e=>{if(e.target===id("zoom"))id("zoom").hidden=true};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")id("zoom").hidden=true});
+document.querySelectorAll("[data-group]").forEach(button=>button.onclick=()=>showGroup(button.dataset.group));
+renderCounts();
+// 正確な拡張子・追加ファイルをGitHubの公開APIから取得して反映します。
+fetch(`https://api.github.com/repos/${REPO}/contents/`,{headers:{Accept:"application/vnd.github+json"}})
+ .then(r=>{if(!r.ok)throw Error("list unavailable");return r.json()})
+ .then(items=>{if(!Array.isArray(items))return;
+   const actual=items.filter(x=>x.type==="file" && /\.(png|jpe?g|webp)$/i.test(x.name)).map(x=>x.name);
+   if(actual.length){imageFiles=actual;renderCounts()}
+ }).catch(()=>{});
+</script>
+</body>
+</html>
