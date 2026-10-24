@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ミスターXからの挑戦状 事件ファイル Ver.2｜捜査資料照合</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1420;--panel:#111b2b;--button:#1c2d43;--stroke:#66788d;--muted:#afb9c6}
+*{box-sizing:border-box}
+html{background:#070b11}
+body{margin:0;background:var(--bg);color:#f4f3f2;text-align:center;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;min-height:100vh}
+main{width:min(100%,760px);margin:auto;padding-bottom:50px;min-height:100vh}
+.cover{width:100%;max-height:52vh;object-fit:cover;display:block;background:#060b14}
+.eyebrow{font:600 12px system-ui,sans-serif;color:#acbfd3;letter-spacing:.14em;margin:25px 10px 12px}
+h1{font-size:clamp(22px,5.8vw,28px);line-height:1.65;margin:18px 10px 15px}
+h2{font-size:clamp(19px,4.6vw,23px);margin:20px 10px}
+p{font-size:16px;line-height:1.9;padding:0 15px;margin:16px auto;max-width:680px}
+.sub{font-size:13px;color:var(--muted)}
+button,a.btn{cursor:pointer;font-family:inherit;display:block;width:100%;border-radius:9px;border:1px solid var(--stroke);background:var(--button);color:#fff;padding:15px 12px;font-size:16px;line-height:1.5;text-align:center;text-decoration:none;min-height:50px}
+button:active,a.btn:active{background:#344d67}
+button:focus-visible,a.btn:focus-visible{outline:3px solid #a5c6ff;outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+nav,.actions{display:grid;gap:12px;margin:22px 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.case-list,.doc-list{display:grid;gap:12px;margin:22px 16px}
+.case-button{display:flex;align-items:center;justify-content:space-between;text-align:left;padding:20px 17px;font-size:18px}
+.case-button span{font:13px system-ui,sans-serif;color:#c0cfdf;padding-left:6px}
+.doc{border:1px solid #3e5267;border-radius:10px;background:#121d2d;padding:15px;text-align:left}
+.doc-title{font-size:18px;line-height:1.65}
+.doc-name{color:#b9c5d4;font:12px/1.6 system-ui,sans-serif;overflow-wrap:anywhere;margin:5px 0 13px}
+.doc-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.doc-buttons button{font-size:14px;padding:10px 6px;min-height:44px}
+.doc-buttons button:first-child{grid-column:1/-1}
+.selected{border-color:#e2bb70;background:#3d352a}
+.status{color:#dfd0a9;font-size:13px;margin:14px 12px;line-height:1.8}
+.photo-panel{border:1px solid #405269;background:#111a29;border-radius:10px;overflow:hidden;margin:18px 15px 25px}
+.photo-frame{background:#03070c;min-height:130px;display:flex;align-items:center;justify-content:center;position:relative}
+.photo-frame img{display:block;width:100%;height:auto;max-height:72vh;object-fit:contain;cursor:zoom-in}
+.photo-label{font-size:17px;text-align:left;padding:13px 14px 1px}
+.photo-filename{text-align:left;padding:6px 14px 15px;font:12px/1.7 system-ui,sans-serif;color:#a5b6c8;overflow-wrap:anywhere}
+.loading-text{font:14px/1.7 system-ui,sans-serif;color:#bcc6d3;padding:28px}
+.err{color:#e5bfc0;font-size:14px;line-height:1.7;padding:20px}
+.err a{color:#bed5ff;word-break:break-all}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 9px;align-items:start}
+.compare .photo-panel{margin:0;min-width:0}
+.compare .photo-frame{min-height:155px}
+.compare .photo-frame img{max-height:48vh}
+.compare .photo-label{font-size:13px;line-height:1.55;padding:9px}
+.compare .photo-filename{font-size:10px;padding:4px 9px 10px}
+.compare .loading-text{font-size:12px;padding:12px 5px}
+.compare .err{font-size:12px;padding:9px 5px}
+.compare .doc-buttons{display:block}
+.tip{font-size:12px;color:#b6c4d2;margin:8px 12px 20px}
+.full-zoom{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.97);display:flex;align-items:center;justify-content:center;padding:66px 6px 12px}
+.full-zoom img{max-width:100%;max-height:calc(100dvh - 100px);object-fit:contain}
+.full-zoom button{position:absolute;top:12px;right:12px;width:auto;min-height:44px;padding:9px 17px;font-size:14px}
+[hidden]{display:none!important}
+footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
+</style>
+</head>
+<body>
+<main>
+ <section id="home">
+  <img class="cover" src="v2_pc_room.png" alt="捜査本部のパソコン" onerror="this.style.display='none'">
+  <div class="eyebrow">INVESTIGATION MATERIALS / VERSION 2</div>
+  <h1>ミスターXからの挑戦状</h1>
+  <h2>事件ファイル Ver.2 考察編</h2>
+  <p>捜査資料照合システム</p>
+  <p class="sub">資料を自分で選び、必要に応じて2枚を比較してください。記録と推測は区別して考えてください。</p>
+  <nav><button id="openCases">事件資料を選ぶ</button><a class="btn" href="./">捜査本部へ戻る</a></nav>
+ </section>
+ <section id="cases" hidden>
+  <div class="eyebrow">CASE FILES</div><h1>捜査資料一覧</h1>
+  <p class="sub">見たい事件を選んでください。地図の参考位置は、事件当時の状況を再現するものではありません。</p>
+  <div class="case-list">
+   <button class="case-button" data-group="a">事件ファイル A <span id="count-a"></span></button>
+   <button class="case-button" data-group="b">事件ファイル B <span id="count-b"></span></button>
+   <button class="case-button" data-group="c">事件ファイル C <span id="count-c"></span></button>
+   <button class="case-button" data-group="d">事件ファイル D <span id="count-d"></span></button>
+   <button class="case-button" data-group="e">事件ファイル E <span id="count-e"></span></button>
+   <button class="case-button" data-group="compare">5件の比較資料 <span id="count-compare"></span></button>
+   <button class="case-button" data-group="team">捜査チーム <span id="count-team"></span></button>
+  </div>
+  <nav><button id="fromCasesCompare">選んだ2枚を比較する</button><button id="toHome">パソコン画面へ戻る</button></nav>
+ </section>
+ <section id="group" hidden>
+  <div class="eyebrow">SELECT MATERIALS</div><h1 id="groupTitle"></h1>
+  <p class="sub">資料名を確認し、「1枚を見る」「左に選ぶ」「右に選ぶ」から選択してください。別の事件の画像も組み合わせられます。</p>
+  <div class="two" style="margin:15px"><button id="backToCases">事件一覧へ</button><button id="groupCompare">2枚を比較する</button></div>
+  <div id="selectedStatus" class="status" aria-live="polite"></div>
+  <div class="doc-list" id="docList"></div>
+ </section>
+ <section id="single" hidden>
+  <div class="eyebrow">EVIDENCE REVIEW</div><h1>選択した資料</h1>
+  <div class="two" style="margin:15px"><button id="singleBack">資料選択へ</button><button id="singleCompare">2枚を比較する</button></div>
+  <div id="singleHolder"></div>
+ </section>
+ <section id="comparison" hidden>
+  <div class="eyebrow">COMPARISON</div><h1>捜査資料の比較</h1>
+  <p class="sub">左と右の画像をそれぞれ選んでください。画像を押すと個別に拡大します。</p>
+  <div class="compare"><div id="leftHolder"></div><div id="rightHolder"></div></div>
+  <div class="two" style="margin:15px"><button id="comparisonCases">画像を選び直す</button><button id="comparisonHome">パソコン画面へ戻る</button></div>
+  <p class="tip">※選択画像を並べて表示しています。地理的な近さや事件の関連を自動判定するものではありません。</p>
+ </section>
+ <footer>製作：恋する魔女 ｜ 検証資料・考察編<br>実在事件の資料と創作演出を混同せず、断定を避けて取り扱ってください。</footer>
+</main>
+<div id="zoom" class="full-zoom" hidden role="dialog" aria-label="資料画像を拡大表示"><button id="closeZoom">閉じる ×</button><img id="zoomImg" alt="拡大表示中の資料"></div>
+<script>
+"use strict";
+const REPO="koisurumajyo777yuke-creator/mister-X-case-file-v2";
+const knownFiles=[
+ "a_discovery_map.PNG","a_home_map.PNG","a_home_to_shrine_walk.PNG","a_route_map.PNG","a_shrine_map.PNG","a_shrine_to_river_walk.PNG",
+ "b_discovery_map.PNG","b_home_map.PNG","b_lastseen_to_school_walk.PNG","b_old_map.PNG","b_old_shop_map.PNG",
+ "c_discovery_map.PNG","c_lastseen_map.PNG","c_old_map.PNG","c_park_map.PNG","c_route_car.PNG",
+ "d_discovery_map.PNG","d_lastseen_map.PNG","e_lastseen_map.PNG","v2_pc_room.png","V2_investigation_team.PNG"
+];
+let imageFiles=[...knownFiles];
+let left=null,right=null,activeGroup=null;
+const el=s=>document.getElementById(s);
+const groups={a:"事件ファイル A",b:"事件ファイル B",c:"事件ファイル C",d:"事件ファイル D",e:"事件ファイル E",compare:"5件の比較資料",team:"捜査チーム"};
+const labels={
+ a_discovery_map:"遺体発見現場周辺の地図",a_home_map:"自宅周辺の地図",a_home_to_shrine_walk:"自宅から神社への徒歩経路",a_route_map:"経路を確認する地図",a_shrine_map:"神社周辺の地図",a_shrine_to_river_walk:"神社から河川への徒歩経路",
+ b_discovery_map:"遺体発見現場周辺の地図",b_home_map:"自宅周辺の地図",b_lastseen_to_school_walk:"徒歩経路を比較する地図",b_old_map:"当時の資料にある略図",b_old_shop_map:"旧店舗跡周辺の地図",
+ c_discovery_map:"遺体発見現場周辺の地図",c_lastseen_map:"最終目撃地点周辺の地図",c_old_map:"当時の資料にある略図",c_park_map:"尾島公園周辺の地図",c_route_car:"車での経路を確認する地図",
+ d_discovery_map:"遺体発見現場周辺の地図",d_lastseen_map:"最終目撃地点周辺の地図",e_lastseen_map:"最終目撃地点周辺の地図",
+ v2_pc_room:"捜査資料照合用パソコン",V2_investigation_team:"捜査チーム"
+};
+function groupFor(f){
+ const m=f.match(/^([abcde])_/i);if(m)return m[1].toLowerCase();
+ if(/^five_pins_/i.test(f))return "compare";
+ if(/^(v2_pc_room|V2_investigation_team)\./i.test(f))return "team";
+ return "";
+}
+function title(f){return labels[f.replace(/\.[^.]+$/,'')]||f.replace(/\.[^.]+$/,'').replaceAll('_',' ')}
+function url(f){return './'+encodeURIComponent(f)}
+function show(view){for(const s of ['home','cases','group','single','comparison'])el(s).hidden=s!==view;window.scrollTo(0,0)}
+function setCounts(){Object.keys(groups).forEach(g=>{const n=imageFiles.filter(f=>groupFor(f)===g).length;el('count-'+g).textContent=n?n+'点':'確認中'})}
+function setStatus(){const text='左：'+(left?title(left):'未選択')+' ／ 右：'+(right?title(right):'未選択');el('selectedStatus').textContent=text}
+function choose(side,f){
+ if(side==='left')left=f;else right=f;
+ setStatus();
+ document.querySelectorAll('[data-choice]').forEach(b=>{
+  const selected=(b.dataset.choice==='left'?left:right)===b.dataset.file;
+  b.classList.toggle('selected',selected);
+  b.textContent=(b.dataset.choice==='left'?'左':'右')+(selected?'に選択済み':'に選ぶ');
+ });
+}
+function button(text,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b}
+function renderGroup(g){
+ activeGroup=g;el('groupTitle').textContent=groups[g];setStatus();const holder=el('docList');holder.replaceChildren();
+ const files=imageFiles.filter(f=>groupFor(f)===g);
+ if(!files.length){const p=document.createElement('p');p.textContent='資料の登録を確認できませんでした。';holder.append(p)}
+ files.forEach(f=>{
+  const card=document.createElement('div');card.className='doc';
+  const t=document.createElement('div');t.className='doc-title';t.textContent=title(f);
+  const name=document.createElement('div');name.className='doc-name';name.textContent=f;
+  const buttons=document.createElement('div');buttons.className='doc-buttons';
+  const l=button(left===f?'左に選択済み':'左に選ぶ',()=>choose('left',f));l.dataset.choice='left';l.dataset.file=f;if(left===f)l.className='selected';
+  const r=button(right===f?'右に選択済み':'右に選ぶ',()=>choose('right',f));r.dataset.choice='right';r.dataset.file=f;if(right===f)r.className='selected';
+  buttons.append(button('この1枚を見る',()=>openSingle(f)),l,r);card.append(t,name,buttons);holder.append(card)
+ });show('group')
+}
+function makePhoto(holder,f){
+ holder.replaceChildren();const panel=document.createElement('div');panel.className='photo-panel';
+ if(!f){const p=document.createElement('div');p.className='loading-text';p.textContent='画像が未選択です。';panel.append(p);holder.append(panel);return}
+ const frame=document.createElement('div');frame.className='photo-frame';const status=document.createElement('div');status.className='loading-text';status.textContent='画像を読み込んでいます…';frame.append(status);
+ const name=document.createElement('div');name.className='photo-label';name.textContent=title(f);
+ const fn=document.createElement('div');fn.className='photo-filename';fn.textContent=f;
+ panel.append(frame,name,fn);holder.append(panel);
+ const img=new Image();img.alt=title(f);img.loading='eager';img.decoding='async';
+ img.onload=()=>{if(img.naturalWidth>0){status.remove();frame.append(img)}else fail()};
+ const fail=()=>{status.className='err';status.textContent='画像を表示できませんでした。 ';const a=document.createElement('a');a.href=url(f);a.textContent='画像を直接開く';a.target='_blank';a.rel='noopener';status.append(a)};
+ img.onerror=fail;
+ img.onclick=()=>{el('zoomImg').src=url(f);el('zoomImg').alt=title(f);el('zoom').hidden=false};
+ img.src=url(f);
+}
+function openSingle(f){makePhoto(el('singleHolder'),f);show('single')}
+function openCompare(){makePhoto(el('leftHolder'),left);makePhoto(el('rightHolder'),right);show('comparison')}
+el('openCases').onclick=()=>show('cases');el('toHome').onclick=()=>show('home');
+el('backToCases').onclick=()=>show('cases');el('singleBack').onclick=()=>renderGroup(activeGroup);
+el('fromCasesCompare').onclick=openCompare;el('groupCompare').onclick=openCompare;el('singleCompare').onclick=openCompare;
+el('comparisonCases').onclick=()=>show('cases');el('comparisonHome').onclick=()=>show('home');
+el('closeZoom').onclick=()=>el('zoom').hidden=true;
+el('zoom').onclick=e=>{if(e.target===el('zoom'))el('zoom').hidden=true};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')el('zoom').hidden=true});
+document.querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>renderGroup(b.dataset.group));
+setCounts();
+// GitHubの登録名を取得し、文字の大小や追加画像を自動的に反映します。
+fetch('https://api.github.com/repos/'+REPO+'/contents/',{headers:{Accept:'application/vnd.github+json'}})
+.then(r=>{if(!r.ok)throw Error('画像一覧の取得失敗');return r.json()})
+.then(data=>{
+ if(!Array.isArray(data))return;
+ const actual=data.filter(x=>x.type==='file'&&/\.(png|jpe?g|webp)$/i.test(x.name)).map(x=>x.name);
+ if(actual.length){imageFiles=actual;setCounts();if(activeGroup && !el('group').hidden)renderGroup(activeGroup)}
+}).catch(()=>{});
+</script>
+</body></html>
