@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ミスターXからの挑戦状 事件ファイル Ver.2｜ルート照合テスト</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1420;--panel:#111b2b;--button:#1c2d43;--stroke:#66788d;--muted:#afb9c6}
+*{box-sizing:border-box}
+html{background:#070b11}
+body{margin:0;background:var(--bg);color:#f4f3f2;text-align:center;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;min-height:100vh}
+main{width:min(100%,760px);margin:auto;padding-bottom:50px;min-height:100vh}
+.cover{width:100%;max-height:52vh;object-fit:cover;display:block;background:#060b14}
+.eyebrow{font:600 12px system-ui,sans-serif;color:#acbfd3;letter-spacing:.14em;margin:25px 10px 12px}
+h1{font-size:clamp(22px,5.8vw,28px);line-height:1.65;margin:18px 10px 15px}
+h2{font-size:clamp(19px,4.6vw,23px);margin:20px 10px}
+p{font-size:16px;line-height:1.9;padding:0 15px;margin:16px auto;max-width:680px}
+.sub{font-size:13px;color:var(--muted)}
+button,a.btn{cursor:pointer;font-family:inherit;display:block;width:100%;border-radius:9px;border:1px solid var(--stroke);background:var(--button);color:#fff;padding:15px 12px;font-size:16px;line-height:1.5;text-align:center;text-decoration:none;min-height:50px}
+button:active,a.btn:active{background:#344d67}
+button:focus-visible,a.btn:focus-visible{outline:3px solid #a5c6ff;outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+nav,.actions{display:grid;gap:12px;margin:22px 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.case-list,.doc-list{display:grid;gap:12px;margin:22px 16px}
+.case-button{display:flex;align-items:center;justify-content:space-between;text-align:left;padding:20px 17px;font-size:18px}
+.case-button span{font:13px system-ui,sans-serif;color:#c0cfdf;padding-left:6px}
+.doc{border:1px solid #3e5267;border-radius:10px;background:#121d2d;padding:15px;text-align:left}
+.doc-title{font-size:18px;line-height:1.65}
+.doc-name{color:#b9c5d4;font:12px/1.6 system-ui,sans-serif;overflow-wrap:anywhere;margin:5px 0 13px}
+.doc-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.doc-buttons button{font-size:14px;padding:10px 6px;min-height:44px}
+.doc-buttons button:first-child{grid-column:1/-1}
+.selected{border-color:#e2bb70;background:#3d352a}
+.status{color:#dfd0a9;font-size:13px;margin:14px 12px;line-height:1.8}
+.photo-panel{border:1px solid #405269;background:#111a29;border-radius:10px;overflow:hidden;margin:18px 15px 25px}
+.photo-frame{background:#03070c;min-height:130px;display:flex;align-items:center;justify-content:center;position:relative}
+.photo-frame img{display:block;width:100%;height:auto;max-height:72vh;object-fit:contain;cursor:zoom-in}
+.photo-label{font-size:17px;text-align:left;padding:13px 14px 1px}
+.photo-filename{text-align:left;padding:6px 14px 15px;font:12px/1.7 system-ui,sans-serif;color:#a5b6c8;overflow-wrap:anywhere}
+.loading-text{font:14px/1.7 system-ui,sans-serif;color:#bcc6d3;padding:28px}
+.err{color:#e5bfc0;font-size:14px;line-height:1.7;padding:20px}
+.err a{color:#bed5ff;word-break:break-all}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 9px;align-items:start}
+.compare .photo-panel{margin:0;min-width:0}
+.compare .photo-frame{min-height:155px}
+.compare .photo-frame img{max-height:48vh}
+.compare .photo-label{font-size:13px;line-height:1.55;padding:9px}
+.compare .photo-filename{font-size:10px;padding:4px 9px 10px}
+.compare .loading-text{font-size:12px;padding:12px 5px}
+.compare .err{font-size:12px;padding:9px 5px}
+.compare .doc-buttons{display:block}
+.tip{font-size:12px;color:#b6c4d2;margin:8px 12px 20px}
+.full-zoom{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.97);display:flex;align-items:center;justify-content:center;padding:66px 6px 12px}
+.full-zoom img{max-width:100%;max-height:calc(100dvh - 100px);object-fit:contain}
+.full-zoom button{position:absolute;top:12px;right:12px;width:auto;min-height:44px;padding:9px 17px;font-size:14px}
+.record-box{border:1px solid #67788b;background:#152235;border-radius:10px;padding:17px;margin:22px 15px;text-align:left}
+.record-box label{display:block;margin:0 0 9px;font-size:15px}
+.record-box select{display:block;width:100%;border:1px solid #8599ae;background:#0b1625;color:#fff;padding:13px;border-radius:7px;font-size:16px;margin-bottom:12px}
+.record-box .two{margin:0}
+.record-box button{font-size:14px;padding:11px 5px}
+.record-item{border:1px solid #405269;background:#121d2d;border-radius:9px;margin:10px 15px;padding:14px;text-align:left}
+.record-item .sub{padding:0;margin:5px 0;font-size:13px;overflow-wrap:anywhere}
+#recordMessage,#recordsMessage,#routeMessage,#routeRecordsMessage{margin:15px;font-size:14px;line-height:1.8;color:#e5d4a4}
+.route-map .photo-frame img{max-height:46vh}
+.route-choice-list{display:grid;gap:10px;margin:20px 15px}
+.route-choice{border:1px solid #405269;border-radius:10px;background:#121d2d;padding:12px;text-align:left}
+.route-choice.selected{border-color:#e2bb70;background:#26313c}
+.route-choice .doc-title{font-size:16px}
+.route-choice .two{margin-top:10px}
+.route-choice .two button{font-size:13px;min-height:46px;padding:9px 4px}
+#routeCount{font-size:16px;font-weight:bold}
+
+[hidden]{display:none!important}
+footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
+</style>
+</head>
+<body>
+<main>
+ <section id="home">
+  <img class="cover" src="v2_pc_room.png" alt="捜査本部のパソコン" onerror="this.style.display='none'">
+  <div class="eyebrow">INVESTIGATION MATERIALS / VERSION 2</div>
+  <h1>ミスターXからの挑戦状</h1>
+  <h2>事件ファイル Ver.2 考察編</h2>
+  <p>捜査資料照合システム</p>
+  <p class="sub">資料を自分で選び、必要に応じて2枚を比較してください。記録と推測は区別して考えてください。</p>
+  <nav>
+    <button id="openCases">事件資料を選ぶ</button>
+    <button id="openRecords">5件の選択記録を見る（テスト）</button>
+    <button id="openRoutes">ルートナビから関連地点を選ぶ（新テスト）</button>
+    <a class="btn" href="./">捜査本部へ戻る</a>
+  </nav>
+ </section>
+ <section id="cases" hidden>
+  <div class="eyebrow">CASE FILES</div><h1>捜査資料一覧</h1>
+  <p class="sub">見たい事件を選んでください。地図の参考位置は、事件当時の状況を再現するものではありません。</p>
+  <div class="case-list">
+   <button class="case-button" data-group="a">事件ファイル A <span id="count-a"></span></button>
+   <button class="case-button" data-group="b">事件ファイル B <span id="count-b"></span></button>
+   <button class="case-button" data-group="c">事件ファイル C <span id="count-c"></span></button>
+   <button class="case-button" data-group="d">事件ファイル D <span id="count-d"></span></button>
+   <button class="case-button" data-group="e">事件ファイル E <span id="count-e"></span></button>
+   <button class="case-button" data-group="compare">5件の比較資料 <span id="count-compare"></span></button>
+   <button class="case-button" data-group="team">捜査チーム <span id="count-team"></span></button>
+  </div>
+  <nav><button id="fromCasesCompare">選んだ2枚を比較する</button><button id="casesRecords">5件の選択記録を見る（テスト）</button><button id="toHome">パソコン画面へ戻る</button></nav>
+ </section>
+ <section id="group" hidden>
+  <div class="eyebrow">SELECT MATERIALS</div><h1 id="groupTitle"></h1>
+  <p class="sub">資料名を確認し、「1枚を見る」「左に選ぶ」「右に選ぶ」から選択してください。別の事件の画像も組み合わせられます。</p>
+  <div class="two" style="margin:15px"><button id="backToCases">事件一覧へ</button><button id="groupCompare">2枚を比較する</button></div>
+  <div id="selectedStatus" class="status" aria-live="polite"></div>
+  <div class="doc-list" id="docList"></div>
+ </section>
+ <section id="single" hidden>
+  <div class="eyebrow">EVIDENCE REVIEW</div><h1>選択した資料</h1>
+  <div class="two" style="margin:15px"><button id="singleBack">資料選択へ</button><button id="singleCompare">2枚を比較する</button></div>
+  <div id="singleHolder"></div>
+ </section>
+ <section id="comparison" hidden>
+  <div class="eyebrow">COMPARISON</div><h1>捜査資料の比較</h1>
+  <p class="sub">左と右の画像をそれぞれ選んでください。画像を押すと個別に拡大します。</p>
+  <div class="compare"><div id="leftHolder"></div><div id="rightHolder"></div></div>
+  <div class="two" style="margin:15px"><button id="comparisonCases">画像を選び直す</button><button id="comparisonHome">パソコン画面へ戻る</button></div>
+  <div class="record-box">
+   <label for="recordCase">この比較をどの事件の捜査記録にしますか？</label>
+   <select id="recordCase">
+    <option value="">事件を選択してください</option>
+    <option value="a">事件ファイル A</option>
+    <option value="b">事件ファイル B</option>
+    <option value="c">事件ファイル C</option>
+    <option value="d">事件ファイル D</option>
+    <option value="e">事件ファイル E</option>
+   </select>
+   <div class="two"><button id="takeLeft">左の1枚を記録する</button><button id="takeRight">右の1枚を記録する</button></div>
+   <p class="sub">この画面は機能確認用です。今は2枚を自由にセットできます。実際の公開版では、各事件の候補2枚を事前に決めます。</p>
+   <div id="recordMessage" aria-live="polite"></div>
+  </div>
+  <p class="tip">※選択の正解・不正解はここでは表示しません。地理的な近さや事件の関連を自動判定するものではありません。</p>
+ </section>
+ <section id="records" hidden>
+  <div class="eyebrow">INVESTIGATION RECORD</div>
+  <h1>5件の捜査資料</h1>
+  <p class="sub">記録した画像を確認できます。選択が正しいかどうかは表示しません。修正したい場合は、比較画面で別の画像を記録してください。</p>
+  <div id="recordList"></div>
+  <nav><button id="testReadRecords">捜査本部のパソコンに読み込む（テスト）</button><button id="recordsCases">画像の選択へ戻る</button><button id="recordsHome">パソコン画面へ戻る</button></nav>
+  <div id="recordsMessage" aria-live="polite"></div>
+ </section>
+ <section id="routes" hidden>
+  <div class="eyebrow">ROUTE MATERIALS / TEST</div><h1>ルートナビ照合</h1>
+  <p class="sub">先にルートナビを確認し、あとから捜査資料の中で関係すると思う地点を選びます。ルートは検証用の仮説であり、当時の実際の移動経路を示すものではありません。</p>
+  <div id="routeButtons" class="case-list"></div>
+  <nav><button id="openRouteRecords">ルートの選択記録を見る</button><button id="routesHome">パソコン画面へ戻る</button></nav>
+ </section>
+ <section id="route" hidden>
+  <div class="eyebrow">ROUTE MATCHING / TEST</div><h1 id="routeTitle">ルートナビ</h1>
+  <p class="sub">まずルートを確認してください。続いて、関係すると思う資料を候補一覧から選択します。</p>
+  <div id="routeMap" class="route-map"></div>
+  <p class="sub">候補は現在登録されている<strong>すべての画像</strong>です。今回のテストでは3枚を選んで記録します。選択しても正解・不正解は表示しません。</p>
+  <div class="record-box">
+   <div id="routeCount" aria-live="polite">選択済み：0 / 3</div>
+   <p id="routePicked" class="sub" style="padding:0;margin:10px 0">まだ選択されていません。</p>
+   <button id="saveRoute" disabled>選んだ3枚を捜査記録に保存する</button>
+   <div id="routeMessage" aria-live="polite"></div>
+  </div>
+  <h2>すべての捜査資料から選ぶ</h2>
+  <p class="sub">「画像を確認」で資料を1枚ずつ拡大できます。画像を見ずにファイル名だけで選ぶ必要はありません。</p>
+  <div id="routeCandidates" class="route-choice-list"></div>
+  <nav><button id="routeRecordsButton">ルートの選択記録を見る</button><button id="routeBack">ルートナビ一覧へ</button></nav>
+ </section>
+ <section id="routeRecords" hidden>
+  <div class="eyebrow">ROUTE RECORD / TEST</div><h1>ルート照合の捜査記録</h1>
+  <p class="sub">各ルートで選んだ画像を表示します。正解・不正解の判定はしません。</p>
+  <div id="routeRecordList"></div>
+  <nav><button id="readRouteRecords">捜査本部のパソコンに読み込む（ルート・テスト）</button><button id="routeRecordsBack">ルート一覧へ戻る</button><button id="routeRecordsHome">パソコン画面へ戻る</button></nav>
+  <div id="routeRecordsMessage" aria-live="polite"></div>
+ </section>
+ <footer>製作：恋する魔女 ｜ 検証資料・考察編<br>実在事件の資料と創作演出を混同せず、断定を避けて取り扱ってください。</footer>
+</main>
+<div id="zoom" class="full-zoom" hidden role="dialog" aria-label="資料画像を拡大表示"><button id="closeZoom">閉じる ×</button><img id="zoomImg" alt="拡大表示中の資料"></div>
+<script>
+"use strict";
+const REPO="koisurumajyo777yuke-creator/mister-X-case-file-v2";
+const knownFiles=[
+ "a_discovery_map.PNG","a_home_map.PNG","a_home_to_shrine_walk.PNG","a_route_map.PNG","a_shrine_map.PNG","a_shrine_to_river_walk.PNG",
+ "b_discovery_map.PNG","b_home_map.PNG","b_lastseen_to_school_walk.PNG","b_old_map.PNG","b_old_shop_map.PNG",
+ "c_discovery_map.PNG","c_lastseen_map.PNG","c_old_map.PNG","c_park_map.PNG","c_route_car.PNG",
+ "d_discovery_map.PNG","d_lastseen_map.PNG","e_lastseen_map.PNG","v2_pc_room.png","V2_investigation_team.PNG"
+];
+let imageFiles=[...knownFiles];
+let left=null,right=null,activeGroup=null;
+const el=s=>document.getElementById(s);
+const groups={a:"事件ファイル A",b:"事件ファイル B",c:"事件ファイル C",d:"事件ファイル D",e:"事件ファイル E",compare:"5件の比較資料",team:"捜査チーム"};
+const labels={
+ a_discovery_map:"遺体発見現場周辺の地図",a_home_map:"自宅周辺の地図",a_home_to_shrine_walk:"自宅から神社への徒歩経路",a_route_map:"経路を確認する地図",a_shrine_map:"神社周辺の地図",a_shrine_to_river_walk:"神社から河川への徒歩経路",
+ b_discovery_map:"遺体発見現場周辺の地図",b_home_map:"自宅周辺の地図",b_lastseen_to_school_walk:"徒歩経路を比較する地図",b_old_map:"当時の資料にある略図",b_old_shop_map:"旧店舗跡周辺の地図",
+ c_discovery_map:"遺体発見現場周辺の地図",c_lastseen_map:"最終目撃地点周辺の地図",c_old_map:"当時の資料にある略図",c_park_map:"尾島公園周辺の地図",c_route_car:"車での経路を確認する地図",
+ d_discovery_map:"遺体発見現場周辺の地図",d_lastseen_map:"最終目撃地点周辺の地図",e_lastseen_map:"最終目撃地点周辺の地図",
+ v2_pc_room:"捜査資料照合用パソコン",V2_investigation_team:"捜査チーム"
+};
+function groupFor(f){
+ const m=f.match(/^([abcde])_/i);if(m)return m[1].toLowerCase();
+ if(/^five_pins_/i.test(f))return "compare";
+ if(/^(v2_pc_room|V2_investigation_team)\./i.test(f))return "team";
+ return "";
+}
+function title(f){return labels[f.replace(/\.[^.]+$/,'')]||f.replace(/\.[^.]+$/,'').replaceAll('_',' ')}
+function url(f){return './'+encodeURIComponent(f)}
+function show(view){for(const s of ['home','cases','group','single','comparison','records','routes','route','routeRecords'])el(s).hidden=s!==view;window.scrollTo(0,0)}
+function setCounts(){Object.keys(groups).forEach(g=>{const n=imageFiles.filter(f=>groupFor(f)===g).length;el('count-'+g).textContent=n?n+'点':'確認中'})}
+function setStatus(){const text='左：'+(left?title(left):'未選択')+' ／ 右：'+(right?title(right):'未選択');el('selectedStatus').textContent=text}
+function choose(side,f){
+ if(side==='left')left=f;else right=f;
+ setStatus();
+ document.querySelectorAll('[data-choice]').forEach(b=>{
+  const selected=(b.dataset.choice==='left'?left:right)===b.dataset.file;
+  b.classList.toggle('selected',selected);
+  b.textContent=(b.dataset.choice==='left'?'左':'右')+(selected?'に選択済み':'に選ぶ');
+ });
+}
+function button(text,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b}
+function renderGroup(g){
+ activeGroup=g;el('groupTitle').textContent=groups[g];setStatus();const holder=el('docList');holder.replaceChildren();
+ const files=imageFiles.filter(f=>groupFor(f)===g);
+ if(!files.length){const p=document.createElement('p');p.textContent='資料の登録を確認できませんでした。';holder.append(p)}
+ files.forEach(f=>{
+  const card=document.createElement('div');card.className='doc';
+  const t=document.createElement('div');t.className='doc-title';t.textContent=title(f);
+  const name=document.createElement('div');name.className='doc-name';name.textContent=f;
+  const buttons=document.createElement('div');buttons.className='doc-buttons';
+  const l=button(left===f?'左に選択済み':'左に選ぶ',()=>choose('left',f));l.dataset.choice='left';l.dataset.file=f;if(left===f)l.className='selected';
+  const r=button(right===f?'右に選択済み':'右に選ぶ',()=>choose('right',f));r.dataset.choice='right';r.dataset.file=f;if(right===f)r.className='selected';
+  buttons.append(button('この1枚を見る',()=>openSingle(f)),l,r);card.append(t,name,buttons);holder.append(card)
+ });show('group')
+}
+function makePhoto(holder,f){
+ holder.replaceChildren();const panel=document.createElement('div');panel.className='photo-panel';
+ if(!f){const p=document.createElement('div');p.className='loading-text';p.textContent='画像が未選択です。';panel.append(p);holder.append(panel);return}
+ const frame=document.createElement('div');frame.className='photo-frame';const status=document.createElement('div');status.className='loading-text';status.textContent='画像を読み込んでいます…';frame.append(status);
+ const name=document.createElement('div');name.className='photo-label';name.textContent=title(f);
+ const fn=document.createElement('div');fn.className='photo-filename';fn.textContent=f;
+ panel.append(frame,name,fn);holder.append(panel);
+ const img=new Image();img.alt=title(f);img.loading='eager';img.decoding='async';
+ img.onload=()=>{if(img.naturalWidth>0){status.remove();frame.append(img)}else fail()};
+ const fail=()=>{status.className='err';status.textContent='画像を表示できませんでした。 ';const a=document.createElement('a');a.href=url(f);a.textContent='画像を直接開く';a.target='_blank';a.rel='noopener';status.append(a)};
+ img.onerror=fail;
+ img.onclick=()=>{el('zoomImg').src=url(f);el('zoomImg').alt=title(f);el('zoom').hidden=false};
+ img.src=url(f);
+}
+function openSingle(f){makePhoto(el('singleHolder'),f);show('single')}
+const saveKey='mx_v2_case_choices_test_v1';
+let records={};
+try {const old=JSON.parse(localStorage.getItem(saveKey)||'{}');if(old&&typeof old==='object'&&!Array.isArray(old)) records=old;}catch(e){}
+function openCompare(){
+ makePhoto(el('leftHolder'),left);makePhoto(el('rightHolder'),right);
+ const gl=left?groupFor(left):'',gr=right?groupFor(right):'';
+ el('recordCase').value=gl===gr&&'abcde'.includes(gl)?gl:'';
+ el('recordMessage').textContent='';
+ show('comparison')
+}
+function recordChoice(side){
+ const g=el('recordCase').value, f=side==='left'?left:right;
+ if(!left||!right){el('recordMessage').textContent='左右2枚の画像を先にセットしてください。';return}
+ if(left===right){el('recordMessage').textContent='左右に同じ画像が選ばれています。異なる画像を2枚セットしてください。';return}
+ if(!g){el('recordMessage').textContent='先に「事件ファイル A〜E」を指定してください。';return}
+ // Ver.2の正式版では事件ごとに決めた2枚に限定する。テスト版は記録動作だけを検証する。
+ records[g]={file:f,other:side==='left'?right:left,side:side,updated:Date.now()};
+ try {localStorage.setItem(saveKey,JSON.stringify(records));el('recordMessage').textContent='事件ファイル '+g.toUpperCase()+'：選んだ1枚を捜査記録に保存しました。判定は表示しません。'}
+ catch(e){el('recordMessage').textContent='事件ファイル '+g.toUpperCase()+'：この画面では記録しましたが、ブラウザに保存できません。プライベートブラウズをご確認ください。'}
+}
+function renderRecords(){
+ const root=el('recordList');root.replaceChildren();
+ for(const g of 'abcde'){
+  const item=document.createElement('div');item.className='record-item';
+  const heading=document.createElement('strong');heading.textContent='事件ファイル '+g.toUpperCase();item.append(heading);
+  const p=document.createElement('div');p.className='sub';
+  p.textContent=records[g]?.file ? '記録済み：'+title(records[g].file)+' ('+records[g].file+')' : '未記録';
+  item.append(p);root.append(item);
+ }
+ el('recordsMessage').textContent='';
+ show('records')
+}
+function readRecords(){
+ const missing=[...'abcde'].filter(g=>!records[g]?.file);
+ if(missing.length){el('recordsMessage').textContent='資料が揃っていません。A〜Eの5件すべての選択が必要です。';return}
+ el('recordsMessage').textContent='5件の画像選択記録を読み込みました。※このテスト版では正誤の判定とセピア色への変化はまだ行いません。';
+}
+el('openCases').onclick=()=>show('cases');el('openRecords').onclick=renderRecords;el('casesRecords').onclick=renderRecords;el('toHome').onclick=()=>show('home');
+el('backToCases').onclick=()=>show('cases');el('singleBack').onclick=()=>renderGroup(activeGroup);
+el('fromCasesCompare').onclick=openCompare;el('groupCompare').onclick=openCompare;el('singleCompare').onclick=openCompare;
+el('takeLeft').onclick=()=>recordChoice('left');el('takeRight').onclick=()=>recordChoice('right');
+el('recordsCases').onclick=()=>show('cases');el('recordsHome').onclick=()=>show('home');el('testReadRecords').onclick=readRecords;
+el('comparisonCases').onclick=()=>show('cases');el('comparisonHome').onclick=()=>show('home');
+el('closeZoom').onclick=()=>el('zoom').hidden=true;
+el('zoom').onclick=e=>{if(e.target===el('zoom'))el('zoom').hidden=true};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')el('zoom').hidden=true});
+document.querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>renderGroup(b.dataset.group));
+setCounts();
+// GitHubの登録名を取得し、文字の大小や追加画像を自動的に反映します。
+fetch('https://api.github.com/repos/'+REPO+'/contents/',{headers:{Accept:'application/vnd.github+json'}})
+.then(r=>{if(!r.ok)throw Error('画像一覧の取得失敗');return r.json()})
+.then(data=>{
+ if(!Array.isArray(data))return;
+ const actual=data.filter(x=>x.type==='file'&&/\.(png|jpe?g|webp)$/i.test(x.name)).map(x=>x.name);
+ if(actual.length){imageFiles=actual;setCounts();if(activeGroup && !el('group').hidden)renderGroup(activeGroup);if(!el('route').hidden)renderRouteCandidates()}
+}).catch(()=>{});
+
+// ── Ver.2新テスト：ルート画像を先に提示し、全資料から3枚選ぶ ──
+// これらはUI動作確認用のルート画像です。事件との関係性を自動判定しません。
+const navs=[
+ {id:'route1',name:'ルートナビ 01',file:'a_route_map.PNG'},
+ {id:'route2',name:'ルートナビ 02',file:'b_lastseen_to_school_walk.PNG'},
+ {id:'route3',name:'ルートナビ 03',file:'c_route_car.PNG'}
+];
+const routeSaveKey='mx_v2_route_choices_test_v1';
+let routeRecords={};
+try {const old=JSON.parse(localStorage.getItem(routeSaveKey)||'{}');if(old&&typeof old==='object'&&!Array.isArray(old))routeRecords=old;}catch(e){}
+let currentNav=null, routePicks=[];
+function zoomFile(f){
+ el('zoomImg').src=url(f);
+ el('zoomImg').alt=title(f);
+ el('zoom').hidden=false;
+}
+function renderRouteMenu(){
+ const root=el('routeButtons');root.replaceChildren();
+ navs.forEach(n=>{
+  const b=button(n.name+'  ─  '+(routeRecords[n.id]?.files?.length===3?'記録済み':'未記録'),()=>openRoute(n.id));
+  b.className='case-button';root.append(b);
+ });
+ show('routes');
+}
+function openRoute(id){
+ const n=navs.find(x=>x.id===id);if(!n)return;
+ currentNav=n;routePicks=[...(routeRecords[id]?.files||[])].slice(0,3);
+ el('routeTitle').textContent=n.name;
+ makePhoto(el('routeMap'),n.file);
+ // ルート画像のファイル名は伏せ、画像自体から考察できるようにする。
+ el('routeMap').querySelector('.photo-label').textContent=n.name;
+ el('routeMap').querySelector('.photo-filename').textContent='検証用ルート資料';
+ el('routeMessage').textContent='';
+ renderRouteCandidates();updateRouteSelection();show('route');
+}
+function renderRouteCandidates(){
+ const root=el('routeCandidates');root.replaceChildren();
+ imageFiles.forEach(f=>{
+  const card=document.createElement('div');card.className='route-choice';card.dataset.routeFile=f;
+  const heading=document.createElement('div');heading.className='doc-title';heading.textContent=title(f);
+  const filename=document.createElement('div');filename.className='doc-name';filename.textContent=f;
+  const controls=document.createElement('div');controls.className='two';
+  const pick=button('候補に選ぶ',()=>toggleRoutePick(f));pick.dataset.pick=f;pick.setAttribute('aria-pressed','false');
+  controls.append(button('画像を確認',()=>zoomFile(f)),pick);
+  card.append(heading,filename,controls);root.append(card);
+ });
+ updateRouteSelection();
+}
+function updateRouteSelection(){
+ el('routeCount').textContent='選択済み：'+routePicks.length+' / 3';
+ el('routePicked').textContent=routePicks.length?routePicks.map(f=>title(f)+'（'+f+'）').join(' ／ '):'まだ選択されていません。';
+ el('saveRoute').disabled=routePicks.length!==3;
+ document.querySelectorAll('[data-route-file]').forEach(card=>{
+  const f=card.dataset.routeFile, chosen=routePicks.includes(f);
+  card.classList.toggle('selected',chosen);
+  const pick=card.querySelector('[data-pick]');
+  pick.textContent=chosen?'選択を取り消す':'候補に選ぶ';
+  pick.classList.toggle('selected',chosen);
+  pick.setAttribute('aria-pressed',String(chosen));
+ });
+}
+function toggleRoutePick(f){
+ if(routePicks.includes(f))routePicks=routePicks.filter(x=>x!==f);
+ else if(routePicks.length<3)routePicks.push(f);
+ else{el('routeMessage').textContent='3枚選択されています。ほかの資料に変える場合は、先に1枚の選択を取り消してください。';return}
+ el('routeMessage').textContent='';updateRouteSelection();
+}
+function saveRouteSelection(){
+ if(!currentNav||routePicks.length!==3){el('routeMessage').textContent='まず3枚の画像を選んでください。';return}
+ routeRecords[currentNav.id]={files:[...routePicks],updated:Date.now()};
+ try{localStorage.setItem(routeSaveKey,JSON.stringify(routeRecords));
+  el('routeMessage').textContent=currentNav.name+'：3枚の資料を保存しました。正解・不正解は表示しません。';
+ }catch(e){el('routeMessage').textContent='選択はこの画面に記録されましたが、ブラウザへの保存はできませんでした。'}
+}
+function renderRouteRecords(){
+ const root=el('routeRecordList');root.replaceChildren();
+ navs.forEach(n=>{
+  const box=document.createElement('div');box.className='record-item';
+  const h=document.createElement('strong');h.textContent=n.name;
+  const p=document.createElement('div');p.className='sub';
+  const files=routeRecords[n.id]?.files;
+  p.textContent=Array.isArray(files)&&files.length===3?'記録済み：'+files.map(f=>title(f)+' ('+f+')').join(' ／ '):'未記録';
+  box.append(h,p);root.append(box);
+ });
+ el('routeRecordsMessage').textContent='';show('routeRecords');
+}
+function readRouteSelectionRecords(){
+ const missing=navs.filter(n=>routeRecords[n.id]?.files?.length!==3);
+ el('routeRecordsMessage').textContent=missing.length?
+  'まだ資料が揃っていません。未記録：'+missing.map(n=>n.name).join('、'):
+  '3つのルートの選択記録を読み込みました。※テスト版のため、正誤判定・セピア色への変化は行いません。';
+}
+el('openRoutes').onclick=renderRouteMenu;
+el('openRouteRecords').onclick=renderRouteRecords;
+el('routesHome').onclick=()=>show('home');
+el('routeBack').onclick=renderRouteMenu;
+el('saveRoute').onclick=saveRouteSelection;
+el('routeRecordsButton').onclick=renderRouteRecords;
+el('routeRecordsBack').onclick=renderRouteMenu;
+el('routeRecordsHome').onclick=()=>show('home');
+el('readRouteRecords').onclick=readRouteSelectionRecords;
+
+</script>
+</body></html>
