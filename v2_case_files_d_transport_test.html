@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ミスターXからの挑戦状 事件ファイル Ver.2｜Dちゃん徒歩・車ルート比較テスト</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1420;--panel:#111b2b;--button:#1c2d43;--stroke:#66788d;--muted:#afb9c6}
+*{box-sizing:border-box}
+html{background:#070b11}
+body{margin:0;background:var(--bg);color:#f4f3f2;text-align:center;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;min-height:100vh}
+main{width:min(100%,760px);margin:auto;padding-bottom:50px;min-height:100vh}
+.cover{width:100%;max-height:52vh;object-fit:cover;display:block;background:#060b14}
+.eyebrow{font:600 12px system-ui,sans-serif;color:#acbfd3;letter-spacing:.14em;margin:25px 10px 12px}
+h1{font-size:clamp(22px,5.8vw,28px);line-height:1.65;margin:18px 10px 15px}
+h2{font-size:clamp(19px,4.6vw,23px);margin:20px 10px}
+p{font-size:16px;line-height:1.9;padding:0 15px;margin:16px auto;max-width:680px}
+.sub{font-size:13px;color:var(--muted)}
+button,a.btn{cursor:pointer;font-family:inherit;display:block;width:100%;border-radius:9px;border:1px solid var(--stroke);background:var(--button);color:#fff;padding:15px 12px;font-size:16px;line-height:1.5;text-align:center;text-decoration:none;min-height:50px}
+button:active,a.btn:active{background:#344d67}
+button:focus-visible,a.btn:focus-visible{outline:3px solid #a5c6ff;outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+nav,.actions{display:grid;gap:12px;margin:22px 18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.case-list,.doc-list{display:grid;gap:12px;margin:22px 16px}
+.case-button{display:flex;align-items:center;justify-content:space-between;text-align:left;padding:20px 17px;font-size:18px}
+.case-button span{font:13px system-ui,sans-serif;color:#c0cfdf;padding-left:6px}
+.doc{border:1px solid #3e5267;border-radius:10px;background:#121d2d;padding:15px;text-align:left}
+.doc-title{font-size:18px;line-height:1.65}
+.doc-name{color:#b9c5d4;font:12px/1.6 system-ui,sans-serif;overflow-wrap:anywhere;margin:5px 0 13px}
+.doc-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.doc-buttons button{font-size:14px;padding:10px 6px;min-height:44px}
+.doc-buttons button:first-child{grid-column:1/-1}
+.selected{border-color:#e2bb70;background:#3d352a}
+.status{color:#dfd0a9;font-size:13px;margin:14px 12px;line-height:1.8}
+.photo-panel{border:1px solid #405269;background:#111a29;border-radius:10px;overflow:hidden;margin:18px 15px 25px}
+.photo-frame{background:#03070c;min-height:130px;display:flex;align-items:center;justify-content:center;position:relative}
+.photo-frame img{display:block;width:100%;height:auto;max-height:72vh;object-fit:contain;cursor:zoom-in}
+.photo-label{font-size:17px;text-align:left;padding:13px 14px 1px}
+.photo-filename{text-align:left;padding:6px 14px 15px;font:12px/1.7 system-ui,sans-serif;color:#a5b6c8;overflow-wrap:anywhere}
+.loading-text{font:14px/1.7 system-ui,sans-serif;color:#bcc6d3;padding:28px}
+.err{color:#e5bfc0;font-size:14px;line-height:1.7;padding:20px}
+.err a{color:#bed5ff;word-break:break-all}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 9px;align-items:start}
+.compare .photo-panel{margin:0;min-width:0}
+.compare .photo-frame{min-height:155px}
+.compare .photo-frame img{max-height:48vh}
+.compare .photo-label{font-size:13px;line-height:1.55;padding:9px}
+.compare .photo-filename{font-size:10px;padding:4px 9px 10px}
+.compare .loading-text{font-size:12px;padding:12px 5px}
+.compare .err{font-size:12px;padding:9px 5px}
+.compare .doc-buttons{display:block}
+.tip{font-size:12px;color:#b6c4d2;margin:8px 12px 20px}
+.full-zoom{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.97);display:flex;align-items:center;justify-content:center;padding:66px 6px 12px}
+.full-zoom img{max-width:100%;max-height:calc(100dvh - 100px);object-fit:contain}
+.full-zoom button{position:absolute;top:12px;right:12px;width:auto;min-height:44px;padding:9px 17px;font-size:14px}
+.full-zoom.with-note{flex-direction:column;gap:12px}
+.full-zoom.with-note img{max-height:calc(100dvh - 245px)}
+.bridge-note{font-size:14px;line-height:1.8;color:#e9dcbf;text-align:left;background:#1e2935;border-left:3px solid #a99470;border-radius:4px;padding:13px 15px;margin:10px 14px 17px}
+.full-zoom .bridge-note{width:min(100%,650px);max-height:28vh;overflow:auto;margin:0;color:#f1e4cb;background:#17212c}
+.compare .bridge-note{font-size:11px;padding:7px 8px;margin:4px 7px 10px}
+.record-box{border:1px solid #67788b;background:#152235;border-radius:10px;padding:17px;margin:22px 15px;text-align:left}
+.record-box label{display:block;margin:0 0 9px;font-size:15px}
+.record-box select{display:block;width:100%;border:1px solid #8599ae;background:#0b1625;color:#fff;padding:13px;border-radius:7px;font-size:16px;margin-bottom:12px}
+.record-box .two{margin:0}
+.record-box button{font-size:14px;padding:11px 5px}
+.record-item{border:1px solid #405269;background:#121d2d;border-radius:9px;margin:10px 15px;padding:14px;text-align:left}
+.record-item .sub{padding:0;margin:5px 0;font-size:13px;overflow-wrap:anywhere}
+#recordMessage,#recordsMessage,#routeMessage,#routeRecordsMessage{margin:15px;font-size:14px;line-height:1.8;color:#e5d4a4}
+.route-map .photo-frame img{max-height:46vh}
+.route-choice-list{display:grid;gap:10px;margin:20px 15px}
+.route-choice{border:1px solid #405269;border-radius:10px;background:#121d2d;padding:12px;text-align:left}
+.route-choice.selected{border-color:#e2bb70;background:#26313c}
+.route-choice .doc-title{font-size:16px}
+.route-choice .two{margin-top:10px}
+.route-choice .two button{font-size:13px;min-height:46px;padding:9px 4px}
+#routeCount{font-size:16px;font-weight:bold}
+.c-sites{display:grid;gap:10px;grid-template-columns:repeat(3,minmax(0,1fr));margin:18px 15px}
+.c-sites button{font-size:14px;padding:12px 5px;min-height:62px}
+.c-sites button[aria-pressed="true"]{background:#36445b;border-color:#e2bb70;color:#ffebc4}
+.c-map-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 10px;align-items:start}
+.c-map-columns>div{min-width:0}
+.c-map-columns .photo-panel{margin:0}
+.c-map-columns .photo-frame{min-height:125px}
+.c-map-columns .photo-frame img{max-height:56vh}
+.c-map-columns .photo-label{font-size:13px;line-height:1.55;padding:9px 10px 2px}
+.c-map-columns .photo-filename{font-size:11px;padding:6px 9px 12px}
+@media(min-width:720px){.c-map-columns{gap:17px;margin:20px 18px}.c-map-columns .photo-frame img{max-height:67vh}}
+.c-flow-stage{margin:12px 0 24px}
+.c-flow-step{font:700 12px/1.6 system-ui,sans-serif;letter-spacing:.09em;color:#e4c98f;margin:10px 14px}
+.c-bridge-photos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:20px 10px;align-items:start}
+.c-bridge-photos>div{min-width:0}
+.c-bridge-photos .photo-panel{margin:0}
+.c-bridge-photos .photo-frame{min-height:140px}
+.c-bridge-photos .photo-frame img{max-height:60vh}
+.c-bridge-photos .photo-label{font-size:13px;line-height:1.6;padding:10px 9px 2px}
+.c-bridge-photos .photo-filename{font-size:10px;padding:4px 9px 9px}
+.c-bridge-photos .bridge-note{font-size:11px;padding:8px;margin:6px}
+.c-flow-guidance{color:#ead9b5;font-size:14px;line-height:1.9;margin:18px 15px}
+
+
+.intro-lead{background:#182437;border:1px solid #536a80;border-radius:12px;margin:17px 15px;padding:17px 10px;text-align:left}
+.intro-lead p{margin:8px 0;font-size:15px}
+.intro-lead strong{color:#efdebc}
+.overview-status{margin:18px 16px;color:#e7d5aa;font-size:15px;line-height:1.8}
+.overview-file{font-size:12px;color:#bac8d7;margin:8px 14px;overflow-wrap:anywhere}
+.five-case-actions{display:grid;gap:10px;margin:18px 15px}
+.five-case-actions button{font-size:16px;text-align:left}
+.five-case-actions .complete{border-color:#d0b177;background:#3c3429}
+.progress{display:block;font:12px/1.5 system-ui,sans-serif;color:#b8ccdf;margin-top:4px}
+.five-case-photos{display:grid;gap:11px;margin:18px 15px}
+.five-case-photos button{font-size:15px;min-height:48px}
+.five-case-photos button[aria-pressed="true"]{background:#344c64;border-color:#e0ba79}
+.five-case-photos .photo-panel{margin:0}
+.five-action-note{font-size:13px;color:#d9c69b;line-height:1.8;padding:0 15px}
+
+/* Dちゃん：徒歩／車のルートを閲覧・比較する独立した動作テスト */
+.d-location-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 10px;align-items:start}
+.d-location-grid>div,.d-route-grid>div{min-width:0}
+.d-location-grid .photo-panel,.d-route-grid .photo-panel{margin:0}
+.d-location-grid .photo-frame img{max-height:48vh}
+.d-location-grid .photo-label,.d-route-grid .photo-label{font-size:13px;line-height:1.6;padding:9px 10px 1px}
+.d-location-grid .photo-filename,.d-route-grid .photo-filename{font-size:10px;padding:5px 10px 12px}
+.d-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 12px}
+.d-switch button{font-size:14px;min-height:63px;padding:10px 5px}
+.d-switch button[aria-pressed="true"]{border-color:#e2bb70;background:#35465c;color:#ffefc5}
+.d-route-grid{display:grid;gap:12px;margin:14px 10px 22px;align-items:start;grid-template-columns:1fr 1fr}
+.d-route-grid.one{grid-template-columns:1fr;margin-left:auto;margin-right:auto;max-width:620px;padding:0 9px}
+.d-route-card{background:#131d2b;border:1px solid #4a6078;border-radius:10px;overflow:hidden;min-width:0}
+.d-route-card h3{font-size:17px;line-height:1.5;margin:14px 6px 5px}
+.d-route-card .d-time{font:700 23px/1.5 system-ui,sans-serif;color:#f2d69d;margin:0 6px 9px}
+.d-route-card .d-meta{font-size:12px;color:#b8c4d3;line-height:1.8;padding:0 11px 12px;margin:0}
+.d-route-card .photo-frame img{max-height:59vh}
+.d-car-wait{padding:32px 13px;border-top:1px solid #3c5267;background:#101b2a;color:#d2deeb;line-height:1.9;text-align:center;font-size:14px}
+.d-car-wait strong{display:block;margin-bottom:9px;color:#f0dcad}
+.d-caution{margin:19px 15px;padding:13px 15px;border-left:3px solid #c3a16d;text-align:left;background:#192634;color:#d6deea;line-height:1.9;font-size:14px}
+@media(max-width:380px){.d-switch button{font-size:12px}.d-route-card h3{font-size:15px}.d-route-card .d-time{font-size:20px}}
+[hidden]{display:none!important}
+footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
+</style>
+</head>
+<body>
+<main>
+ <section id="home">
+  <img class="cover" src="v2_pc_room.png" alt="捜査本部のパソコン" onerror="this.style.display='none'">
+  <div class="eyebrow">INVESTIGATION MATERIALS / VERSION 2</div>
+  <h1>ミスターXからの挑戦状</h1>
+  <h2>事件ファイル Ver.2 考察編</h2>
+  <p>捜査資料照合システム</p>
+  <p class="sub">資料を自分で選び、必要に応じて2枚を比較してください。記録と推測は区別して考えてください。</p>
+  <p class="sub" style="font-size:12px">※調査記録は開いたブラウザの保存領域を利用します。別アプリやプライベートブラウズでは共有されない場合があります。</p>
+  <nav>
+    <button id="openFiveIntro">まず5件の事件の位置関係を調べる（ここから開始）</button>
+    <p id="homeFiveStatus" class="sub" style="margin:0;padding:0">5件の確認：0 / 5</p>
+    <button id="restoreFiveTest" type="button" style="display:none;border-style:dashed;background:#24313e;font-size:14px;">【テスト専用】今朝確認した5件を5/5へ復帰する</button>
+    <p id="restoreFiveResult" class="sub" aria-live="polite" style="margin:0;padding:0"></p>
+    <button id="openCases">事件資料を選ぶ（自由閲覧）</button>
+    <button id="openRecords">5件の選択記録を見る（テスト）</button>
+    <button id="openRoutes" disabled>ルートナビから関連地点を選ぶ（5件を確認後）</button>
+    <button id="openCThree">Cちゃん：略図 → 2つの橋 → 現在の3地点（動作テスト）</button>
+    <button id="openDTransport" disabled>Dちゃん：徒歩・車ルートを比べる（5件確認後）</button>
+    <a class="btn" href="./">捜査本部へ戻る</a>
+  </nav>
+ </section>
+ <section id="fiveIntro" hidden>
+  <div class="eyebrow">INVESTIGATION BRIEFING / FIVE CASES</div>
+  <h1>5件の事件の位置関係</h1>
+  <div class="intro-lead">
+   <p><strong>女刑事</strong></p>
+   <p>「いきなりルートを追う前に、まず5件の事件がどこで起きたのかを調べましょう。」</p>
+   <p>「それぞれの目撃地点、遺体発見地点などの位置関係を、参考地図で一つずつ確かめてください。」</p>
+   <p>「地理的な近さだけで、事件同士が関連していると結論づけることはできません。」</p>
+  </div>
+  <h2>5件の全体地図</h2>
+  <p class="sub">これは現在の位置関係を確認するための参考地図です。半径10kmの円の比較は、A〜Eの個別調査後に行います。</p>
+  <div id="fiveOverviewMap"></div>
+  <p id="fiveMapNotice" class="overview-file">全体地図を確認しています…</p>
+  <div id="fiveProgress" class="overview-status" aria-live="polite"></div>
+  <div id="fiveCaseButtons" class="five-case-actions"></div>
+  <nav>
+   <button id="fiveIntroToRoutes" disabled>5件を確認して、ルートナビ照合へ進む</button>
+   <button id="fiveIntroHome">パソコン画面へ戻る</button>
+  </nav>
+ </section>
+ <section id="fiveCase" hidden>
+  <div class="eyebrow">CASE LOCATION REVIEW</div>
+  <h1 id="fiveCaseTitle">事件ファイル</h1>
+  <p id="fiveCaseDescription" class="sub"></p>
+  <p class="five-action-note">地点を示す画像を開き、位置関係を確認してください。画像を押すと拡大できます。</p>
+  <div id="fiveCasePhotoButtons" class="five-case-photos"></div>
+  <div id="fiveCasePhoto"></div>
+  <p id="fiveCaseViewed" class="overview-status" aria-live="polite"></p>
+  <nav>
+    <button id="fiveCaseMark" disabled>この事件の位置関係を確認した</button>
+    <button id="fiveCaseReturn">5件の位置関係の一覧へ戻る</button>
+  </nav>
+ </section>
+ <section id="cases" hidden>
+  <div class="eyebrow">CASE FILES</div><h1>捜査資料一覧</h1>
+  <p class="sub">見たい事件を選んでください。地図の参考位置は、事件当時の状況を再現するものではありません。</p>
+  <div class="case-list">
+   <button class="case-button" data-group="a">事件ファイル A <span id="count-a"></span></button>
+   <button class="case-button" data-group="b">事件ファイル B <span id="count-b"></span></button>
+   <button class="case-button" data-group="c">事件ファイル C <span id="count-c"></span></button>
+   <button class="case-button" data-group="d">事件ファイル D <span id="count-d"></span></button>
+   <button class="case-button" data-group="e">事件ファイル E <span id="count-e"></span></button>
+   <button class="case-button" data-group="compare">5件の比較資料 <span id="count-compare"></span></button>
+   <button class="case-button" data-group="team">捜査チーム <span id="count-team"></span></button>
+  </div>
+  <nav><button id="fromCasesCompare">選んだ2枚を比較する</button><button id="casesRecords">5件の選択記録を見る（テスト）</button><button id="toHome">パソコン画面へ戻る</button></nav>
+ </section>
+ <section id="group" hidden>
+  <div class="eyebrow">SELECT MATERIALS</div><h1 id="groupTitle"></h1>
+  <p class="sub">資料名を確認し、「1枚を見る」「左に選ぶ」「右に選ぶ」から選択してください。別の事件の画像も組み合わせられます。</p>
+  <div class="two" style="margin:15px"><button id="backToCases">事件一覧へ</button><button id="groupCompare">2枚を比較する</button></div>
+  <div id="selectedStatus" class="status" aria-live="polite"></div>
+  <div class="doc-list" id="docList"></div>
+ </section>
+ <section id="single" hidden>
+  <div class="eyebrow">EVIDENCE REVIEW</div><h1>選択した資料</h1>
+  <div class="two" style="margin:15px"><button id="singleBack">資料選択へ</button><button id="singleCompare">2枚を比較する</button></div>
+  <div id="singleHolder"></div>
+ </section>
+ <section id="comparison" hidden>
+  <div class="eyebrow">COMPARISON</div><h1>捜査資料の比較</h1>
+  <p class="sub">左と右の画像をそれぞれ選んでください。画像を押すと個別に拡大します。</p>
+  <div class="compare"><div id="leftHolder"></div><div id="rightHolder"></div></div>
+  <div class="two" style="margin:15px"><button id="comparisonCases">画像を選び直す</button><button id="comparisonHome">パソコン画面へ戻る</button></div>
+  <div class="record-box">
+   <label for="recordCase">この比較をどの事件の捜査記録にしますか？</label>
+   <select id="recordCase">
+    <option value="">事件を選択してください</option>
+    <option value="a">事件ファイル A</option>
+    <option value="b">事件ファイル B</option>
+    <option value="c">事件ファイル C</option>
+    <option value="d">事件ファイル D</option>
+    <option value="e">事件ファイル E</option>
+   </select>
+   <div class="two"><button id="takeLeft">左の1枚を記録する</button><button id="takeRight">右の1枚を記録する</button></div>
+   <p class="sub">この画面は機能確認用です。今は2枚を自由にセットできます。実際の公開版では、各事件の候補2枚を事前に決めます。</p>
+   <div id="recordMessage" aria-live="polite"></div>
+  </div>
+  <p class="tip">※選択の正解・不正解はここでは表示しません。地理的な近さや事件の関連を自動判定するものではありません。</p>
+ </section>
+ <section id="records" hidden>
+  <div class="eyebrow">INVESTIGATION RECORD</div>
+  <h1>5件の捜査資料</h1>
+  <p class="sub">記録した画像を確認できます。選択が正しいかどうかは表示しません。修正したい場合は、比較画面で別の画像を記録してください。</p>
+  <div id="recordList"></div>
+  <nav><button id="testReadRecords">捜査本部のパソコンに読み込む（テスト）</button><button id="recordsCases">画像の選択へ戻る</button><button id="recordsHome">パソコン画面へ戻る</button></nav>
+  <div id="recordsMessage" aria-live="polite"></div>
+ </section>
+ <section id="routes" hidden>
+  <div class="eyebrow">ROUTE MATERIALS / TEST</div><h1>ルートナビ照合</h1>
+  <p class="sub">先にルートナビを確認し、あとから捜査資料の中で関係すると思う地点を選びます。ルートは検証用の仮説であり、当時の実際の移動経路を示すものではありません。</p>
+  <div id="routeButtons" class="case-list"></div>
+  <nav><button id="routesDTransport" type="button">Dちゃん：徒歩・車のルート比較を見る</button></nav>
+  <nav><button id="openRouteRecords">ルートの選択記録を見る</button><button id="routesFiveIntro">5件の位置関係の一覧へ戻る</button><button id="routesHome">パソコン画面へ戻る</button></nav>
+ </section>
+ <section id="route" hidden>
+  <div class="eyebrow">ROUTE MATCHING / TEST</div><h1 id="routeTitle">ルートナビ</h1>
+  <p class="sub">まずルートを確認してください。続いて、関係すると思う資料を候補一覧から選択します。</p>
+  <div id="routeMap" class="route-map"></div>
+  <p class="sub">候補は現在登録されている<strong>すべての画像</strong>です。A〜Eの資料は事件ごとに固めず、順番を混ぜて表示します。今回のテストでは3枚を選んで記録します。正解・不正解は表示しません。</p>
+  <div class="record-box">
+   <div id="routeCount" aria-live="polite">選択済み：0 / 3</div>
+   <p id="routePicked" class="sub" style="padding:0;margin:10px 0">まだ選択されていません。</p>
+   <button id="saveRoute" disabled>選んだ3枚を捜査記録に保存する</button>
+   <div id="routeMessage" aria-live="polite"></div>
+  </div>
+  <nav style="margin-top:8px;margin-bottom:18px"><button id="routeBackNearTop">ルートナビ一覧へ戻る（保存後はこちら）</button></nav>
+  <h2>すべての捜査資料から選ぶ</h2>
+  <p class="sub">「画像を確認」で資料を1枚ずつ拡大できます。PNGの名前はそのまま表示します。資料の並び順は毎回同じなので、メモを使って再調査できます。</p>
+  <div id="routeCandidates" class="route-choice-list"></div>
+  <nav><button id="routeRecordsButton">ルートの選択記録を見る</button><button id="routeBack">ルートナビ一覧へ</button></nav>
+ </section>
+ <section id="routeRecords" hidden>
+  <div class="eyebrow">ROUTE RECORD / TEST</div><h1>ルート照合の捜査記録</h1>
+  <p class="sub">各ルートで選んだ画像を表示します。正解・不正解の判定はしません。</p>
+  <div id="routeRecordList"></div>
+  <nav><button id="readRouteRecords">捜査本部のパソコンに読み込む（ルート・テスト）</button><button id="routeRecordsBack">ルート一覧へ戻る</button><button id="routeRecordsHome">パソコン画面へ戻る</button></nav>
+  <div id="routeRecordsMessage" aria-live="polite"></div>
+ </section>
+ <section id="dTransport" hidden>
+  <div class="eyebrow">CASE D / WALK × CAR ROUTE REVIEW</div>
+  <h1>Dちゃん　徒歩と車のルート比較</h1>
+  <p>最終目撃地点周辺から遺体発見現場周辺まで、現在の道路で示される徒歩と車の参考所要時間を見比べます。</p>
+  <p class="sub">最初に2つの地点の位置関係を確認してください。画像を押すと拡大できます。</p>
+  <div class="d-location-grid">
+   <div id="dLastHolder"></div><div id="dDiscoveryHolder"></div>
+  </div>
+  <h2>移動手段を切り替えて比較する</h2>
+  <div class="d-switch" role="group" aria-label="徒歩と車の表示を切り替える">
+   <button id="dShowWalk" type="button" aria-pressed="false">🚶 徒歩ルート</button>
+   <button id="dShowCar" type="button" aria-pressed="false">🚗 車ルート</button>
+   <button id="dShowBoth" type="button" aria-pressed="true">2つを比較</button>
+  </div>
+  <div id="dRouteGrid" class="d-route-grid">
+   <div id="dWalkCard" class="d-route-card">
+    <h3>徒歩ルート</h3><div class="d-time">約8分</div>
+    <div id="dWalkHolder"></div>
+    <p class="d-meta">現在の地図アプリで確認した参考所要時間。画像：d_route_walk.PNG</p>
+   </div>
+   <div id="dCarCard" class="d-route-card">
+    <h3>車ルート</h3><div class="d-time">約4分 <span style="font-size:11px;font-weight:normal;white-space:nowrap">（仮・画像照合前）</span></div>
+    <div id="dCarHolder" aria-live="polite"></div>
+    <p class="d-meta">約4分は制作時に確認した目安として記録。車のルート画像・同一始終点との照合は未完了です。</p>
+   </div>
+  </div>
+  <p class="d-caution">参考値の差は約4分です。ただし、車の乗降・停車や道路条件は含まれないことがあります。現在の参考ルートから、事件当時の移動手段、経路、出来事を確定することはできません。これは検証用の資料であり、犯人や事件間の関連を判定するものではありません。</p>
+  <nav>
+   <button id="dBackRoutes">ルートナビ照合へ戻る</button>
+   <button id="dBackFive">5件の位置関係の一覧へ戻る</button>
+   <button id="dBackHome">パソコン画面へ戻る</button>
+  </nav>
+ </section>
+ <section id="cThree" hidden>
+  <div class="eyebrow">CASE C / OLD MAP × BRIDGES × PRESENT MAPS</div>
+  <h1>Cちゃん　略図から現在の地点へ</h1>
+  <p class="sub">過去の略図、現在の2つの橋、現在の3地点を順番に見比べます。画像を押すと拡大できます。</p>
+  <div id="cStage1" class="c-flow-stage">
+   <div class="c-flow-step">調査 1 / 3</div>
+   <h2>まず当時の略図を調べる</h2>
+   <p>この略図に描かれた橋や川、道路の位置関係を確認してください。</p>
+   <div id="cStageOldMap"></div>
+   <div class="bridge-note">我々は、過去の略図から現在のどの橋に当たるのかを探すのに一苦労した。まずこの資料をよく見てほしい。</div>
+   <nav><button id="cToBridges">次へ：現在の2つの橋を比較する</button></nav>
+  </div>
+  <div id="cStage2" class="c-flow-stage" hidden>
+   <div class="c-flow-step">調査 2 / 3</div>
+   <h2>現在の2つの橋を比較する</h2>
+   <p>小さな橋と、現在のバイパスの大きな橋。それぞれのストリートビューと位置を確認してください。</p>
+   <div class="c-bridge-photos">
+    <div id="cSmallBridgeHolder"></div>
+    <div id="cBypassBridgeHolder"></div>
+   </div>
+   <p class="c-flow-guidance">どちらの橋が当時の略図により整合するでしょうか。橋の規模だけではなく、川の曲がり方や周辺の道路も見比べてください。</p>
+   <p class="sub">画像は現在の参考資料です。当時と地形や道路が変化している可能性があり、どちらかを史実として断定するものではありません。</p>
+   <nav><button id="cBackOld">当時の略図をもう一度見る</button><button id="cToSites">次へ：現在の3地点を照合する</button></nav>
+  </div>
+  <div id="cStage3" class="c-flow-stage" hidden>
+   <div class="c-flow-step">調査 3 / 3</div>
+   <h2>略図と現在の3地点を照合する</h2>
+   <p>当時の略図と、現在の3地点の参考地図を見比べてください。</p>
+   <p class="sub">右側の地図を切り替えられます。「尾島公園周辺」「最終目撃地点周辺」「遺体発見現場周辺」の順に確認できます。</p>
+   <div class="c-sites" role="group" aria-label="現在の地図を選ぶ">
+    <button type="button" id="cSitePark" aria-pressed="true">① 尾島公園周辺</button>
+    <button type="button" id="cSiteLast" aria-pressed="false">② 最終目撃地点</button>
+    <button type="button" id="cSiteFound" aria-pressed="false">③ 遺体発見現場</button>
+   </div>
+   <div class="c-map-columns"><div id="cOldHolder"></div><div id="cNewHolder"></div></div>
+   <p class="sub">当時の略図と現在の道路・橋・川の形が、完全に一致するとは限りません。現在の地図は参考位置を示すものであり、当時の移動経路や出来事を証明するものではありません。</p>
+   <nav><button id="cBackBridges">2つの橋の比較に戻る</button></nav>
+  </div>
+  <nav>
+   <button id="cThreeToRoute">ルートナビ照合へ戻る</button>
+   <button id="cThreeToHome">パソコン画面へ戻る</button>
+  </nav>
+ </section>
+ <footer>製作：恋する魔女 ｜ 検証資料・考察編<br>実在事件の資料と創作演出を混同せず、断定を避けて取り扱ってください。</footer>
+</main>
+<div id="zoom" class="full-zoom" hidden role="dialog" aria-label="資料画像を拡大表示"><button id="closeZoom">閉じる ×</button><img id="zoomImg" alt="拡大表示中の資料"><p id="zoomNote" class="bridge-note" hidden></p></div>
+<script>
+"use strict";
+const REPO="koisurumajyo777yuke-creator/mister-X-case-file-v2";
+const knownFiles=[
+ "a_discovery_map.PNG","a_home_map.PNG","a_home_to_shrine_walk.PNG","a_route_map.PNG","a_shrine_map.PNG","a_shrine_to_river_walk.PNG",
+ "b_discovery_map.PNG","b_home_map.PNG","b_lastseen_to_school_walk.PNG","b_old_map.PNG","b_old_shop_map.PNG",
+ "c_bridge.PNG","c_bypass_bridge_map.PNG","c_bypass_bridge_streetview.PNG","c_discovery_map.PNG","c_lastseen_map.PNG","c_old_map.PNG","c_park_map.PNG","c_route_car.PNG",
+ "d_discovery_map.PNG","d_lastseen_map.PNG","d_route_walk.PNG","e_lastseen_map.PNG","v2_pc_room.png","V2_investigation_team.PNG"
+];
+let imageFiles=[...knownFiles];
+let left=null,right=null,activeGroup=null;
+const el=s=>document.getElementById(s);
+const groups={a:"事件ファイル A",b:"事件ファイル B",c:"事件ファイル C",d:"事件ファイル D",e:"事件ファイル E",compare:"5件の比較資料",team:"捜査チーム"};
+const labels={
+ a_discovery_map:"遺体発見現場周辺の地図",a_home_map:"自宅周辺の地図",a_home_to_shrine_walk:"自宅から神社への徒歩経路",a_route_map:"経路を確認する地図",a_shrine_map:"神社周辺の地図",a_shrine_to_river_walk:"神社から河川への徒歩経路",
+ b_discovery_map:"遺体発見現場周辺の地図",b_home_map:"自宅周辺の地図",b_lastseen_to_school_walk:"徒歩経路を比較する地図",b_old_map:"当時の資料にある略図",b_old_shop_map:"旧店舗跡周辺の地図",
+ c_bridge:"現在の橋の参考画像",c_bypass_bridge_map:"現在のバイパスと橋周辺の位置図",c_bypass_bridge_streetview:"現在の大きなバイパス橋（ストリートビュー＋位置図）",c_discovery_map:"遺体発見現場周辺の地図",c_lastseen_map:"最終目撃地点周辺の地図",c_old_map:"当時の資料にある略図",c_park_map:"尾島公園周辺の地図",c_route_car:"車での経路を確認する地図",
+ d_discovery_map:"遺体発見現場周辺の地図",d_lastseen_map:"最終目撃地点周辺の地図",d_route_walk:"徒歩ルート（現在の地図／約8分）",d_route_car:"車ルート（確認用）",e_lastseen_map:"最終目撃地点周辺の地図",
+ v2_pc_room:"捜査資料照合用パソコン",V2_investigation_team:"捜査チーム"
+};
+function groupFor(f){
+ const m=f.match(/^([abcde])_/i);if(m)return m[1].toLowerCase();
+ if(/^five_pins_/i.test(f))return "compare";
+ if(/^(v2_pc_room|V2_investigation_team)\./i.test(f))return "team";
+ return "";
+}
+function title(f){return labels[f.replace(/\.[^.]+$/,'')]||f.replace(/\.[^.]+$/,'').replaceAll('_',' ')}
+const bridgeNote='我々も、過去の略図を手掛かりに、現在のどの橋に当たるのかを探すのに一苦労した。略図と橋の位置、川の流れ、周辺の道路を照らし合わせ、あなた自身の目で確かめてほしい。※現在の画像は参考資料であり、当時の状況をそのまま示すものではない。';
+function url(f){return './'+encodeURIComponent(f)}
+function show(view){for(const s of ['home','cases','group','single','comparison','records','routes','route','routeRecords','cThree','dTransport','fiveIntro','fiveCase'])el(s).hidden=s!==view;window.scrollTo(0,0)}
+function setCounts(){Object.keys(groups).forEach(g=>{const n=imageFiles.filter(f=>groupFor(f)===g).length;el('count-'+g).textContent=n?n+'点':'確認中'})}
+function setStatus(){const text='左：'+(left?title(left):'未選択')+' ／ 右：'+(right?title(right):'未選択');el('selectedStatus').textContent=text}
+function choose(side,f){
+ if(side==='left')left=f;else right=f;
+ setStatus();
+ document.querySelectorAll('[data-choice]').forEach(b=>{
+  const selected=(b.dataset.choice==='left'?left:right)===b.dataset.file;
+  b.classList.toggle('selected',selected);
+  b.textContent=(b.dataset.choice==='left'?'左':'右')+(selected?'に選択済み':'に選ぶ');
+ });
+}
+function button(text,fn){const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=fn;return b}
+function renderGroup(g){
+ activeGroup=g;el('groupTitle').textContent=groups[g];setStatus();const holder=el('docList');holder.replaceChildren();
+ const files=imageFiles.filter(f=>groupFor(f)===g);
+ if(!files.length){const p=document.createElement('p');p.textContent='資料の登録を確認できませんでした。';holder.append(p)}
+ files.forEach(f=>{
+  const card=document.createElement('div');card.className='doc';
+  const t=document.createElement('div');t.className='doc-title';t.textContent=title(f);
+  const name=document.createElement('div');name.className='doc-name';name.textContent=f;
+  const buttons=document.createElement('div');buttons.className='doc-buttons';
+  const l=button(left===f?'左に選択済み':'左に選ぶ',()=>choose('left',f));l.dataset.choice='left';l.dataset.file=f;if(left===f)l.className='selected';
+  const r=button(right===f?'右に選択済み':'右に選ぶ',()=>choose('right',f));r.dataset.choice='right';r.dataset.file=f;if(right===f)r.className='selected';
+  buttons.append(button('この1枚を見る',()=>openSingle(f)),l,r);card.append(t,name,buttons);holder.append(card)
+ });show('group')
+}
+function makePhoto(holder,f){
+ holder.replaceChildren();const panel=document.createElement('div');panel.className='photo-panel';
+ if(!f){const p=document.createElement('div');p.className='loading-text';p.textContent='画像が未選択です。';panel.append(p);holder.append(panel);return}
+ const frame=document.createElement('div');frame.className='photo-frame';const status=document.createElement('div');status.className='loading-text';status.textContent='画像を読み込んでいます…';frame.append(status);
+ const name=document.createElement('div');name.className='photo-label';name.textContent=title(f);
+ const fn=document.createElement('div');fn.className='photo-filename';fn.textContent=f;
+ panel.append(frame,name,fn);
+ if(f==='c_bridge.PNG' && !el('cThree').contains(holder)){const note=document.createElement('p');note.className='bridge-note';note.textContent=bridgeNote;panel.append(note)}
+ holder.append(panel);
+ const img=new Image();img.alt=title(f);img.loading='eager';img.decoding='async';
+ img.onload=()=>{if(img.naturalWidth>0){status.remove();frame.append(img)}else fail()};
+ const fail=()=>{status.className='err';status.textContent='画像を表示できませんでした。 ';const a=document.createElement('a');a.href=url(f);a.textContent='画像を直接開く';a.target='_blank';a.rel='noopener';status.append(a)};
+ img.onerror=fail;
+ img.onclick=()=>zoomFile(f);
+ img.src=url(f);
+}
+function openSingle(f){makePhoto(el('singleHolder'),f);show('single')}
+const saveKey='mx_v2_case_choices_test_v1';
+let records={};
+try {const old=JSON.parse(localStorage.getItem(saveKey)||'{}');if(old&&typeof old==='object'&&!Array.isArray(old)) records=old;}catch(e){}
+function openCompare(){
+ makePhoto(el('leftHolder'),left);makePhoto(el('rightHolder'),right);
+ const gl=left?groupFor(left):'',gr=right?groupFor(right):'';
+ el('recordCase').value=gl===gr&&'abcde'.includes(gl)?gl:'';
+ el('recordMessage').textContent='';
+ show('comparison')
+}
+function recordChoice(side){
+ const g=el('recordCase').value, f=side==='left'?left:right;
+ if(!left||!right){el('recordMessage').textContent='左右2枚の画像を先にセットしてください。';return}
+ if(left===right){el('recordMessage').textContent='左右に同じ画像が選ばれています。異なる画像を2枚セットしてください。';return}
+ if(!g){el('recordMessage').textContent='先に「事件ファイル A〜E」を指定してください。';return}
+ // Ver.2の正式版では事件ごとに決めた2枚に限定する。テスト版は記録動作だけを検証する。
+ records[g]={file:f,other:side==='left'?right:left,side:side,updated:Date.now()};
+ try {localStorage.setItem(saveKey,JSON.stringify(records));el('recordMessage').textContent='事件ファイル '+g.toUpperCase()+'：選んだ1枚を捜査記録に保存しました。判定は表示しません。'}
+ catch(e){el('recordMessage').textContent='事件ファイル '+g.toUpperCase()+'：この画面では記録しましたが、ブラウザに保存できません。プライベートブラウズをご確認ください。'}
+}
+function renderRecords(){
+ const root=el('recordList');root.replaceChildren();
+ for(const g of 'abcde'){
+  const item=document.createElement('div');item.className='record-item';
+  const heading=document.createElement('strong');heading.textContent='事件ファイル '+g.toUpperCase();item.append(heading);
+  const p=document.createElement('div');p.className='sub';
+  p.textContent=records[g]?.file ? '記録済み：'+title(records[g].file)+' ('+records[g].file+')' : '未記録';
+  item.append(p);root.append(item);
+ }
+ el('recordsMessage').textContent='';
+ show('records')
+}
+function readRecords(){
+ const missing=[...'abcde'].filter(g=>!records[g]?.file);
+ if(missing.length){el('recordsMessage').textContent='資料が揃っていません。A〜Eの5件すべての選択が必要です。';return}
+ el('recordsMessage').textContent='5件の画像選択記録を読み込みました。※このテスト版では正誤の判定とセピア色への変化はまだ行いません。';
+}
+el('openCases').onclick=()=>show('cases');el('openRecords').onclick=renderRecords;el('casesRecords').onclick=renderRecords;el('toHome').onclick=()=>show('home');
+el('backToCases').onclick=()=>show('cases');el('singleBack').onclick=()=>renderGroup(activeGroup);
+el('fromCasesCompare').onclick=openCompare;el('groupCompare').onclick=openCompare;el('singleCompare').onclick=openCompare;
+el('takeLeft').onclick=()=>recordChoice('left');el('takeRight').onclick=()=>recordChoice('right');
+el('recordsCases').onclick=()=>show('cases');el('recordsHome').onclick=()=>show('home');el('testReadRecords').onclick=readRecords;
+el('comparisonCases').onclick=()=>show('cases');el('comparisonHome').onclick=()=>show('home');
+el('closeZoom').onclick=()=>el('zoom').hidden=true;
+el('zoom').onclick=e=>{if(e.target===el('zoom'))el('zoom').hidden=true};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')el('zoom').hidden=true});
+document.querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>renderGroup(b.dataset.group));
+setCounts();
+
+// 五件の事件の位置関係を確認する導入段階。推理の正解・不正解は判定しない。
+const fiveIntroKey='mx_v2_five_location_review_v1';
+const introCases={
+ a:{label:'Aちゃん',text:'自宅周辺・神社周辺・遺体発見現場周辺を確認してください。',files:['a_home_map.PNG','a_shrine_map.PNG','a_discovery_map.PNG']},
+ b:{label:'Bちゃん',text:'旧店舗跡周辺・自宅周辺・遺体発見現場周辺を確認してください。',files:['b_old_shop_map.PNG','b_home_map.PNG','b_discovery_map.PNG']},
+ c:{label:'Cちゃん',text:'尾島公園周辺・最終目撃地点・遺体発見現場を確認してください。当時の略図と橋の照合は別の資料で続けます。',files:['c_park_map.PNG','c_lastseen_map.PNG','c_discovery_map.PNG']},
+ d:{label:'Dちゃん',text:'最終目撃地点周辺と遺体発見現場周辺を確認してください。',files:['d_lastseen_map.PNG','d_discovery_map.PNG']},
+ e:{label:'Eちゃん',text:'最終目撃地点周辺を確認してください。Eちゃんは現在も行方不明です。',files:['e_lastseen_map.PNG']}
+};
+let fiveReviewed={};
+try{
+ const obj=JSON.parse(localStorage.getItem(fiveIntroKey)||'{}');
+ if(obj&&typeof obj==='object'&&!Array.isArray(obj))fiveReviewed=obj;
+}catch(e){}
+let currentFive=null, fiveViewed=new Set();
+function fiveDoneCount(){return [...'abcde'].filter(k=>fiveReviewed[k]).length}
+function updateFiveGate(){
+ const n=fiveDoneCount(), unlocked=n===5;
+ el('homeFiveStatus').textContent='5件の確認：'+n+' / 5';
+ el('restoreFiveTest').style.display=unlocked?'none':'block';
+ el('openRoutes').disabled=!unlocked;
+ el('openRoutes').textContent=unlocked?'ルートナビから関連地点を選ぶ（新テスト）':'ルートナビから関連地点を選ぶ（5件を確認後）';
+ el('openDTransport').disabled=!unlocked;
+ el('openDTransport').textContent=unlocked?'Dちゃん：徒歩・車ルートを比べる（動作テスト）':'Dちゃん：徒歩・車ルートを比べる（5件確認後）';
+ el('fiveIntroToRoutes').disabled=!unlocked;
+ el('fiveProgress').textContent='確認済み：'+n+' / 5'+(unlocked?'　— ルートナビへ進めます。':'　— 各事件の位置を調べてください。');
+}
+function findFiveOverviewMap(){
+ // 5件の位置関係だけを示す参考図。10km円の画像はこの段階では使わない。
+ return imageFiles.find(f=>/^five_pins_location/i.test(f))
+  || imageFiles.find(f=>/^five_pins_(?:locations|overview|site_map)/i.test(f))
+  || null;
+}
+function refreshFiveOverviewMap(){
+ const f=findFiveOverviewMap();
+ if(f){makePhoto(el('fiveOverviewMap'),f);el('fiveMapNotice').textContent='画像を押すと拡大できます。';}
+ else{
+  el('fiveOverviewMap').replaceChildren();
+  el('fiveMapNotice').textContent='5件の全体位置図が見つからない場合は、下の事件別資料で位置関係を確認してください。';
+ }
+}
+function openFiveIntro(){
+ updateFiveGate();refreshFiveOverviewMap();
+ const root=el('fiveCaseButtons');root.replaceChildren();
+ for(const k of 'abcde'){
+  const entry=introCases[k];
+  const b=button('事件ファイル '+k.toUpperCase()+' ／ '+entry.label+(fiveReviewed[k]?'　✓ 確認済み':'　— 未確認'),()=>openFiveCase(k));
+  if(fiveReviewed[k])b.classList.add('complete');
+  const sub=document.createElement('span');sub.className='progress';sub.textContent=entry.text;
+  b.append(sub);root.append(b);
+ }
+ show('fiveIntro');
+}
+function openFiveCase(k){
+ if(!introCases[k])return;
+ currentFive=k;fiveViewed=new Set();
+ const entry=introCases[k];
+ el('fiveCaseTitle').textContent='事件ファイル '+k.toUpperCase()+' ／ '+entry.label;
+ el('fiveCaseDescription').textContent=entry.text;
+ el('fiveCasePhoto').replaceChildren();
+ const root=el('fiveCasePhotoButtons');root.replaceChildren();
+ entry.files.forEach((f,i)=>{
+  const b=button((i+1)+'．'+title(f)+' を確認する',()=>{
+   fiveViewed.add(f);makePhoto(el('fiveCasePhoto'),f);
+   root.querySelectorAll('button').forEach(btn=>btn.setAttribute('aria-pressed',String(btn===b)));
+   updateFiveCaseStatus();
+  });
+  b.setAttribute('aria-pressed','false');root.append(b);
+ });
+ updateFiveCaseStatus();show('fiveCase');
+}
+function updateFiveCaseStatus(){
+ const need=introCases[currentFive].files.length;
+ el('fiveCaseViewed').textContent='確認した資料：'+fiveViewed.size+'枚 ／ 必要：'+need+'枚'+(fiveReviewed[currentFive]?'（この事件は記録済みです）':'');
+ el('fiveCaseMark').disabled=fiveViewed.size<need;
+}
+function markFiveCase(){
+ if(!currentFive)return;
+ const need=introCases[currentFive].files.length;
+ if(fiveViewed.size<need)return;
+ fiveReviewed[currentFive]=true;
+ try{localStorage.setItem(fiveIntroKey,JSON.stringify(fiveReviewed))}catch(e){}
+ openFiveIntro();
+}
+// テスト専用：既に5件を実際に確認した制作者が、保存領域が変わった時だけ使う。
+// 完成版ではボタンごと削除し、各事件の全資料を閲覧する本来の条件を維持する。
+el('restoreFiveTest').onclick=()=>{
+ if(fiveDoneCount()===5)return;
+ for(const k of 'abcde')fiveReviewed[k]=true;
+ let persisted=true;
+ try{localStorage.setItem(fiveIntroKey,JSON.stringify(fiveReviewed));}
+ catch(e){persisted=false;}
+ updateFiveGate();
+ el('restoreFiveResult').textContent=persisted?'テスト記録を5/5に復帰しました。このブラウザに保存しました。':'テスト記録を5/5に復帰しました。ただしブラウザへ保存できないため、再読み込み時に消える場合があります。';
+};
+el('openFiveIntro').onclick=openFiveIntro;
+el('fiveIntroHome').onclick=()=>show('home');
+el('fiveIntroToRoutes').onclick=()=>{if(fiveDoneCount()===5)renderRouteMenu()};
+el('fiveCaseMark').onclick=markFiveCase;
+el('fiveCaseReturn').onclick=openFiveIntro;
+updateFiveGate();
+// GitHubの登録名を取得し、文字の大小や追加画像を自動的に反映します。
+fetch('https://api.github.com/repos/'+REPO+'/contents/',{headers:{Accept:'application/vnd.github+json'}})
+.then(r=>{if(!r.ok)throw Error('画像一覧の取得失敗');return r.json()})
+.then(data=>{
+ if(!Array.isArray(data))return;
+ const actual=data.filter(x=>x.type==='file'&&/\.(png|jpe?g|webp)$/i.test(x.name)).map(x=>x.name);
+ if(actual.length){imageFiles=actual;setCounts();if(activeGroup && !el('group').hidden)renderGroup(activeGroup);if(!el('route').hidden)renderRouteCandidates();if(!el('fiveIntro').hidden)refreshFiveOverviewMap()}
+}).catch(()=>{});
+
+// ── Ver.2新テスト：ルート画像を先に提示し、全資料から3枚選ぶ ──
+// これらはUI動作確認用のルート画像です。事件との関係性を自動判定しません。
+const navs=[
+ {id:'route1',name:'ルートナビ 01',file:'a_route_map.PNG'},
+ {id:'route2',name:'ルートナビ 02',file:'b_lastseen_to_school_walk.PNG'},
+ {id:'route3',name:'ルートナビ 03',file:'c_route_car.PNG'}
+];
+const routeSaveKey='mx_v2_route_choices_test_v1';
+let routeRecords={};
+try {const old=JSON.parse(localStorage.getItem(routeSaveKey)||'{}');if(old&&typeof old==='object'&&!Array.isArray(old))routeRecords=old;}catch(e){}
+let currentNav=null, routePicks=[];
+function zoomFile(f){
+ el('zoomImg').src=url(f);
+ el('zoomImg').alt=title(f);
+ const bridge=f==='c_bridge.PNG';
+ el('zoomNote').textContent=bridge?bridgeNote:'';
+ el('zoomNote').hidden=!bridge;
+ el('zoom').classList.toggle('with-note',bridge);
+ el('zoom').hidden=false;
+}
+function renderRouteMenu(){
+ const root=el('routeButtons');root.replaceChildren();
+ navs.forEach(n=>{
+  const b=button(n.name+'  ─  '+(routeRecords[n.id]?.files?.length===3?'記録済み':'未記録'),()=>openRoute(n.id));
+  b.className='case-button';root.append(b);
+ });
+ show('routes');
+}
+function openRoute(id){
+ const n=navs.find(x=>x.id===id);if(!n)return;
+ currentNav=n;routePicks=[...(routeRecords[id]?.files||[])].slice(0,3);
+ el('routeTitle').textContent=n.name;
+ makePhoto(el('routeMap'),n.file);
+ // ルート画像のファイル名は伏せ、画像自体から考察できるようにする。
+ el('routeMap').querySelector('.photo-label').textContent=n.name;
+ el('routeMap').querySelector('.photo-filename').textContent='検証用ルート資料';
+ el('routeMessage').textContent='';
+ renderRouteCandidates();updateRouteSelection();show('route');
+}
+// 調査用の画像一覧を事件ごとに固めずに並べる。毎回同じ順番で表示する。
+// PNG名は隠さない。プレイヤーが名前に気づくのも調査の一部。
+function mixedRouteFiles(files){
+ const unique=[...new Set(files)];
+ // 冒頭に異なる事件の「遺体発見現場」を置く（A,B,C,D）。
+ const opening=['a_discovery_map.PNG','b_discovery_map.PNG','c_discovery_map.PNG','d_discovery_map.PNG'];
+ const ordered=opening.filter(f=>unique.includes(f));
+ const rest=unique.filter(f=>!ordered.includes(f));
+ // 元の登録順やGitHub APIの並び順に左右されない固定の混合順。
+ const stableHash=f=>{
+  let h=2166136261;
+  for(const c of f){h=Math.imul(h ^ c.charCodeAt(0),16777619)}
+  return h>>>0;
+ };
+ rest.sort((a,b)=>stableHash(a)-stableHash(b)||a.localeCompare(b));
+ while(rest.length){
+  const previous=ordered.length?groupFor(ordered[ordered.length-1]):'';
+  // 異なる事件の資料をなるべく交互にする。該当なしなら次の1枚。
+  const at=rest.findIndex(f=>groupFor(f)!==previous);
+  ordered.push(rest.splice(at>=0?at:0,1)[0]);
+ }
+ return ordered;
+}
+function renderRouteCandidates(){
+ const root=el('routeCandidates');root.replaceChildren();
+ mixedRouteFiles(imageFiles).forEach(f=>{
+  const card=document.createElement('div');card.className='route-choice';card.dataset.routeFile=f;
+  const heading=document.createElement('div');heading.className='doc-title';heading.textContent=title(f);
+  const filename=document.createElement('div');filename.className='doc-name';filename.textContent=f;
+  const controls=document.createElement('div');controls.className='two';
+  const pick=button('候補に選ぶ',()=>toggleRoutePick(f));pick.dataset.pick=f;pick.setAttribute('aria-pressed','false');
+  controls.append(button('画像を確認',()=>zoomFile(f)),pick);
+  card.append(heading,filename,controls);root.append(card);
+ });
+ updateRouteSelection();
+}
+function updateRouteSelection(){
+ el('routeCount').textContent='選択済み：'+routePicks.length+' / 3';
+ el('routePicked').textContent=routePicks.length?routePicks.map(f=>title(f)+'（'+f+'）').join(' ／ '):'まだ選択されていません。';
+ el('saveRoute').disabled=routePicks.length!==3;
+ document.querySelectorAll('[data-route-file]').forEach(card=>{
+  const f=card.dataset.routeFile, chosen=routePicks.includes(f);
+  card.classList.toggle('selected',chosen);
+  const pick=card.querySelector('[data-pick]');
+  pick.textContent=chosen?'選択を取り消す':'候補に選ぶ';
+  pick.classList.toggle('selected',chosen);
+  pick.setAttribute('aria-pressed',String(chosen));
+ });
+}
+function toggleRoutePick(f){
+ if(routePicks.includes(f))routePicks=routePicks.filter(x=>x!==f);
+ else if(routePicks.length<3)routePicks.push(f);
+ else{el('routeMessage').textContent='3枚選択されています。ほかの資料に変える場合は、先に1枚の選択を取り消してください。';return}
+ el('routeMessage').textContent='';updateRouteSelection();
+}
+function saveRouteSelection(){
+ if(!currentNav||routePicks.length!==3){el('routeMessage').textContent='まず3枚の画像を選んでください。';return}
+ routeRecords[currentNav.id]={files:[...routePicks],updated:Date.now()};
+ try{localStorage.setItem(routeSaveKey,JSON.stringify(routeRecords));
+  el('routeMessage').textContent=currentNav.name+'：3枚の資料を保存しました。正解・不正解は表示しません。';
+ }catch(e){el('routeMessage').textContent='選択はこの画面に記録されましたが、ブラウザへの保存はできませんでした。'}
+}
+function renderRouteRecords(){
+ const root=el('routeRecordList');root.replaceChildren();
+ navs.forEach(n=>{
+  const box=document.createElement('div');box.className='record-item';
+  const h=document.createElement('strong');h.textContent=n.name;
+  const p=document.createElement('div');p.className='sub';
+  const files=routeRecords[n.id]?.files;
+  p.textContent=Array.isArray(files)&&files.length===3?'記録済み：'+files.map(f=>title(f)+' ('+f+')').join(' ／ '):'未記録';
+  box.append(h,p);root.append(box);
+ });
+ el('routeRecordsMessage').textContent='';show('routeRecords');
+}
+function readRouteSelectionRecords(){
+ const missing=navs.filter(n=>routeRecords[n.id]?.files?.length!==3);
+ el('routeRecordsMessage').textContent=missing.length?
+  'まだ資料が揃っていません。未記録：'+missing.map(n=>n.name).join('、'):
+  '3つのルートの選択記録を読み込みました。※テスト版のため、正誤判定・セピア色への変化は行いません。';
+}
+// Dちゃん：既存の5件確認の完了後だけ開ける追加資料。
+// 車4分は利用者が過去に確認したおおよその参考値。車用画像がない間は空欄でなく説明を表示。
+let dCurrentMode='both';
+function setDMode(mode){
+ if(!['walk','car','both'].includes(mode))return;
+ dCurrentMode=mode;
+ el('dWalkCard').hidden=mode==='car';
+ el('dCarCard').hidden=mode==='walk';
+ el('dRouteGrid').classList.toggle('one',mode!=='both');
+ for(const [name,id] of [['walk','dShowWalk'],['car','dShowCar'],['both','dShowBoth']])
+  el(id).setAttribute('aria-pressed',String(name===mode));
+}
+function showDCarPhoto(){
+ const holder=el('dCarHolder');holder.replaceChildren();
+ const note=document.createElement('div');note.className='d-car-wait';
+ const h=document.createElement('strong');h.textContent='車ルート画像は、まだ登録を確認できていません。';
+ const p=document.createElement('span');p.textContent='今後 d_route_car.PNG を追加すると、この位置に車の参考経路を表示できます。';
+ note.append(h,p);holder.append(note);
+ // 直接ファイルを照会。GitHub APIが一時的に使えなくても、アップロード済みなら表示する。
+ const probe=new Image();
+ probe.onload=()=>{if(probe.naturalWidth>0 && !el('dTransport').hidden)makePhoto(holder,'d_route_car.PNG');};
+ probe.onerror=()=>{};
+ probe.src=url('d_route_car.PNG');
+}
+function openDTransport(){
+ if(fiveDoneCount()!==5){openFiveIntro();return;}
+ show('dTransport');
+ makePhoto(el('dLastHolder'),'d_lastseen_map.PNG');
+ makePhoto(el('dDiscoveryHolder'),'d_discovery_map.PNG');
+ makePhoto(el('dWalkHolder'),'d_route_walk.PNG');
+ showDCarPhoto();
+ setDMode('both');
+}
+el('openDTransport').onclick=openDTransport;
+el('routesDTransport').onclick=openDTransport;
+el('dShowWalk').onclick=()=>setDMode('walk');
+el('dShowCar').onclick=()=>setDMode('car');
+el('dShowBoth').onclick=()=>setDMode('both');
+el('dBackRoutes').onclick=renderRouteMenu;
+el('dBackFive').onclick=openFiveIntro;
+el('dBackHome').onclick=()=>show('home');
+// Cちゃん：当時の略図と、現在の3地点の参考地図を切り替えて照合する。
+// 参考位置を表示するための機能で、事件当時の経路の証明や正誤判定は行いません。
+const cThreeSites=[
+  {button:'cSitePark',file:'c_park_map.PNG',name:'① 尾島公園周辺'},
+  {button:'cSiteLast',file:'c_lastseen_map.PNG',name:'② 最終目撃地点周辺'},
+  {button:'cSiteFound',file:'c_discovery_map.PNG',name:'③ 遺体発見現場周辺'}
+];
+function showCThreeSite(pos){
+ const site=cThreeSites[pos];if(!site)return;
+ makePhoto(el('cNewHolder'),site.file);
+ cThreeSites.forEach((entry,i)=>el(entry.button).setAttribute('aria-pressed',String(i===pos)));
+}
+let cFlowStage=1;
+function showCFlowStage(stage){
+ if(![1,2,3].includes(stage))return;
+ cFlowStage=stage;
+ [1,2,3].forEach(n=>el('cStage'+n).hidden=n!==stage);
+ if(stage===1)makePhoto(el('cStageOldMap'),'c_old_map.PNG');
+ if(stage===2){
+  makePhoto(el('cSmallBridgeHolder'),'c_bridge.PNG');
+  makePhoto(el('cBypassBridgeHolder'),'c_bypass_bridge_streetview.PNG');
+ }
+ if(stage===3){makePhoto(el('cOldHolder'),'c_old_map.PNG');showCThreeSite(0);}
+ window.scrollTo(0,0);
+}
+function openCThree(){
+ show('cThree');
+ showCFlowStage(1);
+}
+el('openCThree').onclick=openCThree;
+el('cToBridges').onclick=()=>showCFlowStage(2);
+el('cBackOld').onclick=()=>showCFlowStage(1);
+el('cToSites').onclick=()=>showCFlowStage(3);
+el('cBackBridges').onclick=()=>showCFlowStage(2);
+cThreeSites.forEach((site,i)=>el(site.button).onclick=()=>showCThreeSite(i));
+// 動作テスト版：Cちゃんの画面からはラベル通り必ずルートナビ一覧に戻る。
+el('cThreeToRoute').onclick=renderRouteMenu;
+el('cThreeToHome').onclick=()=>show('home');
+
+el('openRoutes').onclick=renderRouteMenu;
+el('openRouteRecords').onclick=renderRouteRecords;
+el('routesFiveIntro').onclick=openFiveIntro;
+el('routesHome').onclick=()=>show('home');
+el('routeBack').onclick=renderRouteMenu;
+el('routeBackNearTop').onclick=renderRouteMenu;
+el('saveRoute').onclick=saveRouteSelection;
+el('routeRecordsButton').onclick=renderRouteRecords;
+el('routeRecordsBack').onclick=renderRouteMenu;
+el('routeRecordsHome').onclick=()=>show('home');
+el('readRouteRecords').onclick=readRouteSelectionRecords;
+
+</script>
+</body></html>
