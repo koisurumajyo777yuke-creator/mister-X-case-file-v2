@@ -290,12 +290,12 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
     <button id="openCases">事件資料を選ぶ（自由閲覧）</button>
     <button id="openRecords">5件の選択記録を見る（テスト）</button>
     <button id="openRoutes" disabled>ルートナビから関連地点を選ぶ（5件を確認後）</button>
-    <button id="openATransport" disabled>Aちゃん：徒歩・車の参考ルートを確認する（5件確認後）</button>
-    <button id="openBTransport" disabled>Bちゃん：5つの資料と参考経路を照合する（5件確認後）</button>
-    <button id="openCTransport" disabled>Cちゃん：徒歩・車の参考経路を比較する（5件確認後）</button>
-    <button id="openCThree">Cちゃん：略図 → 2つの橋 → 現在の3地点（動作テスト）</button>
-    <button id="openDTransport" disabled>Dちゃん：徒歩・車ルートを比べる（5件確認後）</button>
-    <button id="openEReview" disabled>Eちゃん：最終目撃地点周辺の資料を調べる（5件確認後）</button>
+    <button id="openATransport" style="display:none" disabled>Aちゃん：徒歩・車の参考ルートを確認する（5件確認後）</button>
+    <button id="openBTransport" style="display:none" disabled>Bちゃん：5つの資料と参考経路を照合する（5件確認後）</button>
+    <button id="openCTransport" style="display:none" disabled>Cちゃん：徒歩・車の参考経路を比較する（5件確認後）</button>
+    <button id="openCThree" style="display:none">Cちゃん：略図 → 2つの橋 → 現在の3地点（動作テスト）</button>
+    <button id="openDTransport" style="display:none" disabled>Dちゃん：徒歩・車ルートを比べる（5件確認後）</button>
+    <button id="openEReview" style="display:none" disabled>Eちゃん：最終目撃地点周辺の資料を調べる（5件確認後）</button>
     <a class="btn" href="./">捜査本部へ戻る</a>
   </nav>
  </section>
@@ -388,9 +388,24 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
   <div id="recordsMessage" aria-live="polite"></div>
  </section>
  <section id="routes" hidden>
-  <div class="eyebrow">ROUTE MATERIALS / TEST</div><h1>ルートナビ照合</h1>
-  <p class="sub">先にルートナビを確認し、あとから捜査資料の中で関係すると思う地点を選びます。ルートは検証用の仮説であり、当時の実際の移動経路を示すものではありません。</p>
+  <div class="eyebrow">ROUTE MATERIALS / INVESTIGATION</div><h1>ルートナビ照合</h1>
+  <div class="intro-lead">
+   <p><strong>女刑事</strong></p>
+   <p>「移動したとすれば、徒歩だったのか。それとも車だったのか。」</p>
+   <p>「まずルートナビを開き、関係すると思う地点を捜査資料から選んでください。」</p>
+  </div>
+  <p class="sub">参考ルートは現在の道路によるもので、事件当時の移動手段や実際の経路を示すものではありません。資料は事件ごとに並べていません。</p>
   <div id="routeButtons" class="case-list"></div>
+  <div id="routesCBridgeSection" style="display:none">
+   <div class="intro-lead">
+    <p><strong>女刑事</strong></p>
+    <p>「Cちゃんの事件資料を集めていたとき、当時の古い略図を入手しました。」</p>
+    <p>「現在の地図で候補となる2つの橋と照らし合わせてみてください。」</p>
+   </div>
+   <nav><button id="routesCBridge" type="button">Cちゃん：古い略図と2つの橋を調べる</button></nav>
+  </div>
+  <h2>参考経路の資料を照合する</h2>
+  <p class="sub">ルートナビの資料を確認した後、徒歩・車の参考経路を比較できます。現在の参考所要時間は各画像を開いて確かめてください。</p>
   <nav>
    <button id="routesATransport" type="button">Aちゃん：徒歩・車の参考ルートを見る</button>
    <button id="routesBTransport" type="button">Bちゃん：旧店舗・自宅・発見現場と参考経路を見る</button>
@@ -888,7 +903,7 @@ function updateFiveGate(){
  el('homeFiveStatus').textContent='5件の確認：'+n+' / 5';
  el('restoreFiveTest').style.display=unlocked?'none':'block';
  el('openRoutes').disabled=!unlocked;
- el('openRoutes').textContent=unlocked?'ルートナビから関連地点を選ぶ（新テスト）':'ルートナビから関連地点を選ぶ（5件を確認後）';
+ el('openRoutes').textContent=unlocked?'ルートナビから関連地点を選ぶ':'ルートナビから関連地点を選ぶ（5件を確認後）';
  el('openATransport').disabled=!unlocked;
  el('openATransport').textContent=unlocked?'Aちゃん：徒歩・車の参考ルートを確認する（動作テスト）':'Aちゃん：徒歩・車の参考ルートを確認する（5件確認後）';
  el('openBTransport').disabled=!unlocked;
@@ -1034,6 +1049,8 @@ function renderRouteMenu(){
   const b=button(n.name+'  ─  '+(routeRecords[n.id]?.files?.length===3?'記録済み':'未記録'),()=>openRoute(n.id));
   b.className='case-button';root.append(b);
  });
+ // Cの略図の入口は、ルートナビ03に3枚の記録がある場合だけ現れる。
+ el('routesCBridgeSection').style.display=routeRecords.route3?.files?.length===3?'block':'none';
  show('routes');
 }
 function openRoute(id){
@@ -1446,6 +1463,7 @@ function openCThree(){
  showCFlowStage(1);
 }
 el('openCThree').onclick=openCThree;
+el('routesCBridge').onclick=openCThree;
 el('cToBridges').onclick=()=>showCFlowStage(2);
 el('cBackOld').onclick=()=>showCFlowStage(1);
 el('cToSites').onclick=()=>showCFlowStage(3);
