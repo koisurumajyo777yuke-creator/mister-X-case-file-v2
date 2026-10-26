@@ -560,7 +560,7 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
   <div class="five-compare-note">【地図画像の表記について】元画像の見出し「5つの遺体発見場所」は誤記です。正しくは<strong>「4件の遺体発見現場周辺と、Eちゃんの最終目撃地点周辺」</strong>の5地点です。画面上で正しい見出しを重ねて表示しています。元画像データは変更していません。</div>
   <div id="fiveFinalGrid" class="five-final-grid" aria-live="polite"></div>
   <div id="fiveRiverCaution" class="five-compare-note" hidden>【Aちゃん・Dちゃんの2地点について】この地図は渡良瀬川と田中橋を挟んだ<strong>2件の遺体発見現場周辺</strong>を見比べるための補足資料です。ピンは正確な遺体発見地点を示すものではありません。ナビの到着地点や当時の移動経路を示す資料ではありません。</div>
-  <div class="five-compare-note">【読み解くポイント】近い地点と離れた地点はどれか。どの地点を中心にすると円が重なるか。資料上の共通点・相違点・判断不能を分けて考えてください。この図から事件の関連性や実際の移動経路を断定することはできません。</div>
+  <div class="five-compare-note">【次の調査へ】4種類の参考資料を確認したら、気になった点をメモして次へ進んでください。この図だけで事件の関連性や実際の移動経路を断定することはできません。</div>
   <nav>
    <button id="fiveCmpToSepia" type="button">次へ：セピア色の5つの印と文字を調べる</button>
    <button id="fiveCmpBackE" type="button">Eちゃんの資料へ戻る</button>
@@ -573,10 +573,10 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
   <h1>セピア色の地図に浮かぶ5つの文字</h1>
   <div class="intro-lead">
    <p><strong>女刑事</strong></p>
-   <p>「5つの円を見比べたなら、同じ地図をもう一度見てください。色が変わると、別の手がかりが見えるかもしれません。」</p>
-   <p>「文字の並びだけを信じず、川の流れや地点の違いも考えてください。」</p>
+   <p>「ここまでの地図を確認できましたね。次の資料にも目を通してみませんか。」</p>
+   <p>「気づいたことがあれば、忘れないようにメモしておいてください。」</p>
   </div>
-  <p class="sub">下のボタンで、比較地図がセピア色に変わり、5地点を示す文字が順に現れます。文字の割り当ては本作品の創作演出案であり、事件資料に実在する暗号ではありません。</p>
+  <p class="sub">下のボタンから次の資料を確認してください。表示される文字は本作品の創作演出であり、実際の事件資料に存在する暗号ではありません。</p>
   <div id="sepiaStage" class="sepia-map-stage" aria-label="5つの地点の参考地図と創作上の暗号文字">
    <img id="sepiaMapImg" alt="5地点の半径10km比較用の参考地図">
    <div class="fiveMapHeaderCorrected" aria-label="地図の正しい見出し">4件の遺体発見現場周辺＋Eちゃんの最終目撃地点周辺</div>
@@ -593,14 +593,14 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
   <p id="sepiaStatus" class="sepia-status" aria-live="polite">まず色を変えて、現れる文字を確認してください。</p>
   <nav class="sepia-controls">
    <button id="sepiaReveal" type="button">地図をセピア色に変える</button>
-   <button id="sepiaSwap" type="button" disabled>A地点とB地点の文字をもう一度照合する</button>
-   <button id="sepiaConsider" type="button" disabled>STARTという文字の意味を考える</button>
+   <button id="sepiaSwap" type="button" disabled>もう一度地図を照合する</button>
+   <button id="sepiaConsider" type="button" disabled>文字について考える</button>
   </nav>
   <div id="sepiaMeaning" class="sepia-secrets" hidden>
    <h2>START ― 何を表すのか？</h2>
-   <p>5つの文字の順番には意味があるのでしょうか。それとも、順序を入れ替える必要があるのでしょうか。</p>
-   <p><strong>R</strong> は River（川）を表しているのでしょうか。<strong>2つのT</strong> は、渡良瀬川を挟む地点と関係するのでしょうか。</p>
-   <p><strong>SとA</strong> を川の上流・下流と考えるなら、どちらがどちらなのか。そして、その読み方を裏づける資料はあるのでしょうか。</p>
+   <p>ここまでに見た資料を振り返り、自分なりの考えを書き留めてください。</p>
+   <p>必要なら、前の地図や記録を見直してみてください。</p>
+   <p>結論を急がず、分からないこともそのまま残して構いません。</p>
    <p>この暗号は、地図を読み直すための<strong>創作上の問いかけ</strong>です。事件の事実や犯人、同一人物による事件であることを示す証拠ではありません。</p>
    <button id="sepiaToReflection" type="button" style="margin-top:20px">最後の考察を捜査手帳にまとめる（テスト）</button>
   </div>
@@ -1371,14 +1371,14 @@ el('sepiaReveal').onclick=()=>{
  sepiaTimer=setTimeout(()=>{
   sepiaTimer=null;if(el('sepiaReview').hidden)return;
   el('sepiaStage').classList.add('reveal');
-  el('sepiaStatus').textContent='5つの文字が現れました。A地点とB地点の文字に、もう一度注目してください。';
+  el('sepiaStatus').textContent='5つの文字が現れました。次の操作に進んでください。';
   el('sepiaSwap').disabled=false;
  },window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:2000);
 };
 el('sepiaSwap').onclick=()=>{
  el('sepiaLetterA').textContent='T';el('sepiaLetterB').textContent='A';
  el('sepiaSummaryA').textContent='T';el('sepiaSummaryB').textContent='A';
- el('sepiaStatus').textContent='A地点の文字はTに、B地点の文字はAに変わりました。2つのTと川の位置関係も照合してください。';
+ el('sepiaStatus').textContent='表示が切り替わりました。気づいたことをメモして、次へ進んでください。';
  el('sepiaSwap').disabled=true;el('sepiaConsider').disabled=false;
 };
 el('sepiaConsider').onclick=()=>{
