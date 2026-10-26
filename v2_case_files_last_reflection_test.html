@@ -404,6 +404,11 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
    </div>
    <nav><button id="routesCBridge" type="button">Cちゃん：古い略図と2つの橋を調べる</button></nav>
   </div>
+  <div id="routesLaterSection" style="display:none">
+   <h2>残る2件の地点を照合する</h2>
+   <p class="sub">調査資料の中から、必要な地点の地図を探してください。選択の順番は問いません。</p>
+   <div id="routesLaterButtons" class="case-list"></div>
+  </div>
   <h2>参考経路の資料を照合する</h2>
   <p class="sub">ルートナビの資料を確認した後、徒歩・車の参考経路を比較できます。現在の参考所要時間は各画像を開いて確かめてください。</p>
   <nav>
@@ -417,13 +422,13 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
  </section>
  <section id="route" hidden>
   <div class="eyebrow">ROUTE MATCHING / TEST</div><h1 id="routeTitle">ルートナビ</h1>
-  <p class="sub">まずルートを確認してください。続いて、関係すると思う資料を候補一覧から選択します。</p>
+  <p class="sub" id="routeGuidance">参考地図を確認し、関係すると思う資料を候補一覧から選択してください。</p>
   <div id="routeMap" class="route-map"></div>
-  <p class="sub">候補は現在登録されている<strong>すべての画像</strong>です。A〜Eの資料は事件ごとに固めず、順番を混ぜて表示します。今回のテストでは3枚を選んで記録します。正解・不正解は表示しません。</p>
+  <p class="sub">候補は登録済みの<strong>すべての画像</strong>です。A〜Eの資料は事件ごとに固めず、混ぜて表示します。必要な地点を探して選んでください。</p>
   <div class="record-box">
-   <div id="routeCount" aria-live="polite">選択済み：0 / 3</div>
+   <div id="routeCount" aria-live="polite">選択済み：0枚</div>
    <p id="routePicked" class="sub" style="padding:0;margin:10px 0">まだ選択されていません。</p>
-   <button id="saveRoute" disabled>選んだ3枚を捜査記録に保存する</button>
+   <button id="saveRoute" disabled>選んだ資料を捜査記録に保存する</button>
    <div id="routeMessage" aria-live="polite"></div>
   </div>
   <nav style="margin-top:8px;margin-bottom:18px"><button id="routeBackNearTop">ルートナビ一覧へ戻る（保存後はこちら）</button></nav>
@@ -434,7 +439,7 @@ footer{padding:24px 16px;font-size:12px;color:#8c9caf;line-height:1.8}
  </section>
  <section id="routeRecords" hidden>
   <div class="eyebrow">ROUTE RECORD / TEST</div><h1>ルート照合の捜査記録</h1>
-  <p class="sub">各ルートで選んだ画像を表示します。正解・不正解の判定はしません。</p>
+  <p class="sub">各調査で記録した資料を表示します。照合の答えは表示しません。</p>
   <div id="routeRecordList"></div>
   <nav><button id="readRouteRecords">捜査本部のパソコンに読み込む（ルート・テスト）</button><button id="routeRecordsBack">ルート一覧へ戻る</button><button id="routeRecordsHome">パソコン画面へ戻る</button></nav>
   <div id="routeRecordsMessage" aria-live="polite"></div>
@@ -1022,16 +1027,36 @@ fetch('https://api.github.com/repos/'+REPO+'/contents/',{headers:{Accept:'applic
  if(actual.length){imageFiles=actual;githubFilesResolved=true;setCounts();if(!el('fiveCompare').hidden)renderFiveCompare();if(activeGroup && !el('group').hidden)renderGroup(activeGroup);if(!el('route').hidden)renderRouteCandidates();if(!el('fiveIntro').hidden)refreshFiveOverviewMap();if(!el('cTransport').hidden)loadCWalkPhoto()}
 }).catch(()=>{});
 
-// ── Ver.2新テスト：ルート画像を先に提示し、全資料から3枚選ぶ ──
-// これらはUI動作確認用のルート画像です。事件との関係性を自動判定しません。
+// 事件ごとの正解セットはコード内部だけで照合する。候補の並びは変えない。
+// これは「資料の組み合わせ」に関するゲーム上の判定であり、事件の因果関係を証明しない。
+const matchFiles={
+ route1:['a_discovery_map.PNG','a_shrine_map.PNG','a_home_map.PNG'],
+ route2:['b_discovery_map.PNG','b_old_shop_map.PNG','b_home_map.PNG'],
+ route3:['c_discovery_map.PNG','c_lastseen_map.PNG','c_park_map.PNG'],
+ route4:['d_discovery_map.PNG','d_lastseen_map.PNG'],
+ route5:['e_lastseen_map.PNG']
+};
 const navs=[
  {id:'route1',name:'ルートナビ 01',file:'a_route_map.PNG'},
  {id:'route2',name:'ルートナビ 02',file:'b_lastseen_to_school_walk.PNG'},
- {id:'route3',name:'ルートナビ 03',file:'c_route_car.PNG'}
+ {id:'route3',name:'ルートナビ 03',file:'c_route_car.PNG'},
+ {id:'route4',name:'Dちゃん：2地点の資料照合',file:'d_route_car.PNG'},
+ {id:'route5',name:'Eちゃん：最終目撃地点の資料照合',file:'e_lastseen_map.PNG'}
 ];
 const routeSaveKey='mx_v2_route_choices_test_v1';
 let routeRecords={};
 try {const old=JSON.parse(localStorage.getItem(routeSaveKey)||'{}');if(old&&typeof old==='object'&&!Array.isArray(old))routeRecords=old;}catch(e){}
+// 旧記録もそのまま読み込み、内容が指定セットと一致した場合だけ進行許可する。
+function sameMatch(id,files){
+ const correct=matchFiles[id];
+ return Array.isArray(files)&&!!correct&&files.length===correct.length &&
+   new Set(files).size===correct.length && correct.every(f=>files.includes(f));
+}
+function routeVerified(id){return sameMatch(id,routeRecords[id]?.files)}
+function allRouteVerified(){return navs.every(n=>routeVerified(n.id))}
+const cBridgeReviewKey='mx_v2_c_bridge_reviewed_v1';
+let cBridgeReviewed=false;
+try{cBridgeReviewed=localStorage.getItem(cBridgeReviewKey)==='1'}catch(e){}
 let currentNav=null, routePicks=[];
 function zoomFile(f){
  el('zoomImg').src=url(f);
@@ -1045,22 +1070,39 @@ function zoomFile(f){
 }
 function renderRouteMenu(){
  const root=el('routeButtons');root.replaceChildren();
- navs.forEach(n=>{
-  const b=button(n.name+'  ─  '+(routeRecords[n.id]?.files?.length===3?'記録済み':'未記録'),()=>openRoute(n.id));
-  b.className='case-button';root.append(b);
+ navs.slice(0,3).forEach((n,i)=>{
+  const b=button(n.name+'  ─  '+(routeVerified(n.id)?'記録済み':'未記録'),()=>openRoute(n.id));
+  b.className='case-button';b.disabled=i>0&&!routeVerified(navs[i-1].id);root.append(b);
  });
- // Cの略図の入口は、ルートナビ03に3枚の記録がある場合だけ現れる。
- el('routesCBridgeSection').style.display=routeRecords.route3?.files?.length===3?'block':'none';
+ // Cちゃんの略図調査は、ルートナビ03の資料照合後に開放する。
+ el('routesCBridgeSection').style.display=routeVerified('route3')?'block':'none';
+ const later=el('routesLaterButtons');later.replaceChildren();
+ navs.slice(3).forEach((n,i)=>{
+  const b=button(n.name+'  ─  '+(routeVerified(n.id)?'記録済み':'未記録'),()=>openRoute(n.id));
+  b.className='case-button';b.disabled=i===0?!cBridgeReviewed:!routeVerified('route4');later.append(b);
+ });
+ el('routesLaterSection').style.display=cBridgeReviewed&&routeVerified('route3')?'block':'none';
+ for(const [id,key] of [['routesATransport','route1'],['routesBTransport','route2'],['routesCTransport','route3'],['routesDTransport','route4'],['routesEReview','route5']]){
+  el(id).disabled=!routeVerified(key);
+ }
+ el('routesCTransport').disabled=!cBridgeReviewed||!routeVerified('route3');
  show('routes');
 }
 function openRoute(id){
- const n=navs.find(x=>x.id===id);if(!n)return;
- currentNav=n;routePicks=[...(routeRecords[id]?.files||[])].slice(0,3);
+ const index=navs.findIndex(n=>n.id===id);
+ if(index<0)return;
+ if(fiveDoneCount()!==5){openFiveIntro();return;}
+ if(index>0&&!routeVerified(navs[index-1].id)){renderRouteMenu();return;}
+ if(index>=3&&!cBridgeReviewed){renderRouteMenu();return;}
+ const n=navs[index];
+ currentNav=n;
+ routePicks=[...(routeRecords[id]?.files||[])].slice(0,matchFiles[id].length);
  el('routeTitle').textContent=n.name;
+ el('routeGuidance').textContent='参考地図を確認して、関係すると思う'+matchFiles[id].length+'枚の資料を探してください。';
  makePhoto(el('routeMap'),n.file);
- // ルート画像のファイル名は伏せ、画像自体から考察できるようにする。
+ // ナビ画像のファイル名は伏せ、画像自体から考察できるようにする。
  el('routeMap').querySelector('.photo-label').textContent=n.name;
- el('routeMap').querySelector('.photo-filename').textContent='検証用ルート資料';
+ el('routeMap').querySelector('.photo-filename').textContent='参考資料';
  el('routeMessage').textContent='';
  renderRouteCandidates();updateRouteSelection();show('route');
 }
@@ -1101,9 +1143,11 @@ function renderRouteCandidates(){
  updateRouteSelection();
 }
 function updateRouteSelection(){
- el('routeCount').textContent='選択済み：'+routePicks.length+' / 3';
+ const need=matchFiles[currentNav?.id]?.length||3;
+ el('routeCount').textContent='選択済み：'+routePicks.length+' / '+need;
  el('routePicked').textContent=routePicks.length?routePicks.map(f=>title(f)+'（'+f+'）').join(' ／ '):'まだ選択されていません。';
- el('saveRoute').disabled=routePicks.length!==3;
+ el('saveRoute').disabled=routePicks.length!==need;
+ el('saveRoute').textContent='選んだ'+need+'枚を捜査記録に保存する';
  document.querySelectorAll('[data-route-file]').forEach(card=>{
   const f=card.dataset.routeFile, chosen=routePicks.includes(f);
   card.classList.toggle('selected',chosen);
@@ -1115,16 +1159,27 @@ function updateRouteSelection(){
 }
 function toggleRoutePick(f){
  if(routePicks.includes(f))routePicks=routePicks.filter(x=>x!==f);
- else if(routePicks.length<3)routePicks.push(f);
- else{el('routeMessage').textContent='3枚選択されています。ほかの資料に変える場合は、先に1枚の選択を取り消してください。';return}
+ else if(routePicks.length<matchFiles[currentNav.id].length)routePicks.push(f);
+ else{el('routeMessage').textContent='必要な枚数が選択されています。別の資料に変える場合は、先に1枚の選択を取り消してください。';return}
  el('routeMessage').textContent='';updateRouteSelection();
 }
 function saveRouteSelection(){
- if(!currentNav||routePicks.length!==3){el('routeMessage').textContent='まず3枚の画像を選んでください。';return}
+ if(!currentNav||routePicks.length!==matchFiles[currentNav.id].length){
+  el('routeMessage').textContent='必要な枚数の資料を選んでください。';return;
+ }
+ if(!sameMatch(currentNav.id,routePicks)){
+  el('routeMessage').textContent='この組み合わせでは次へ進めません。資料をもう一度照合してください。';
+  return;
+ }
+ const previous=routeRecords[currentNav.id];
  routeRecords[currentNav.id]={files:[...routePicks],updated:Date.now()};
- try{localStorage.setItem(routeSaveKey,JSON.stringify(routeRecords));
-  el('routeMessage').textContent=currentNav.name+'：3枚の資料を保存しました。正解・不正解は表示しません。';
- }catch(e){el('routeMessage').textContent='選択はこの画面に記録されましたが、ブラウザへの保存はできませんでした。'}
+ try{
+  localStorage.setItem(routeSaveKey,JSON.stringify(routeRecords));
+  el('routeMessage').textContent='資料を捜査記録に保存しました。次の調査へ進めます。';
+ }catch(e){
+  if(previous===undefined)delete routeRecords[currentNav.id];else routeRecords[currentNav.id]=previous;
+  el('routeMessage').textContent='ブラウザに保存できませんでした。保存領域をご確認ください。';
+ }
 }
 function renderRouteRecords(){
  const root=el('routeRecordList');root.replaceChildren();
@@ -1133,16 +1188,16 @@ function renderRouteRecords(){
   const h=document.createElement('strong');h.textContent=n.name;
   const p=document.createElement('div');p.className='sub';
   const files=routeRecords[n.id]?.files;
-  p.textContent=Array.isArray(files)&&files.length===3?'記録済み：'+files.map(f=>title(f)+' ('+f+')').join(' ／ '):'未記録';
+  p.textContent=routeVerified(n.id)?'記録済み：'+files.map(f=>title(f)+' ('+f+')').join(' ／ '):'未記録';
   box.append(h,p);root.append(box);
  });
  el('routeRecordsMessage').textContent='';show('routeRecords');
 }
 function readRouteSelectionRecords(){
- const missing=navs.filter(n=>routeRecords[n.id]?.files?.length!==3);
+ const missing=navs.filter(n=>!routeVerified(n.id));
  el('routeRecordsMessage').textContent=missing.length?
   'まだ資料が揃っていません。未記録：'+missing.map(n=>n.name).join('、'):
-  '3つのルートの選択記録を読み込みました。※テスト版のため、正誤判定・セピア色への変化は行いません。';
+  '5件の資料の照合記録を読み込みました。引き続き資料を考察してください。';
 }
 // Aちゃん：既存の徒歩画像と、9分・4分を含む車画像を再利用する。
 // 神社周辺と「その後の最終目撃地点」を同一視しない。
@@ -1155,7 +1210,7 @@ function setAMode(mode){
   el(id).setAttribute('aria-pressed',String(name===mode));
 }
 function openATransport(){
- if(fiveDoneCount()!==5){openFiveIntro();return;}
+ if(!routeVerified('route1')){renderRouteMenu();return;}
  show('aTransport');
  makePhoto(el('aShrineHolder'),'a_shrine_map.PNG');
  makePhoto(el('aDiscoveryHolder'),'a_discovery_map.PNG');
@@ -1181,7 +1236,7 @@ function setBMode(mode){
   el(id).setAttribute('aria-pressed',String(name===mode));
 }
 function openBTransport(){
- if(fiveDoneCount()!==5){openFiveIntro();return;}
+ if(!routeVerified('route2')){renderRouteMenu();return;}
  show('bTransport');
  makePhoto(el('bOldShopHolder'),'b_old_shop_map.PNG');
  makePhoto(el('bDiscoveryHolder'),'b_discovery_map.PNG');
@@ -1246,7 +1301,7 @@ function loadCWalkPhoto(){
  probe(0);
 }
 function openCTransport(){
- if(fiveDoneCount()!==5){openFiveIntro();return;}
+ if(!routeVerified('route3')){renderRouteMenu();return;}
  show('cTransport');
  makePhoto(el('cMoveLastHolder'),'c_lastseen_map.PNG');
  makePhoto(el('cMoveDiscoveryHolder'),'c_discovery_map.PNG');
@@ -1275,7 +1330,7 @@ function setDMode(mode){
   el(id).setAttribute('aria-pressed',String(name===mode));
 }
 function openDTransport(){
- if(fiveDoneCount()!==5){openFiveIntro();return;}
+ if(!routeVerified('route4')){renderRouteMenu();return;}
  show('dTransport');
  makePhoto(el('dLastHolder'),'d_lastseen_map.PNG');
  makePhoto(el('dDiscoveryHolder'),'d_discovery_map.PNG');
@@ -1295,7 +1350,7 @@ el('dBackHome').onclick=()=>show('home');
 // Eちゃん：最終目撃地点を確認する。遺体発見現場や架空の経路を作らない。
 let eReviewedInPage=false;
 function openEReview(preserve=false){
- if(fiveDoneCount()!==5){openFiveIntro();return;}
+ if(!allRouteVerified()){renderRouteMenu();return;}
  show('eReview');
  makePhoto(el('eLastHolder'),'e_lastseen_map.PNG');
  if(preserve!==true)eReviewedInPage=false;
@@ -1353,6 +1408,7 @@ function renderFiveCompare(){
   el(id).setAttribute('aria-pressed',String(key===fiveCmpMode));
 }
 function openFiveCompare(){
+ if(!allRouteVerified()){renderRouteMenu();return;}
  if(!eReviewedInPage){openEReview();return;}
  show('fiveCompare');fiveCmpMode='overview';renderFiveCompare();
 }
@@ -1367,6 +1423,7 @@ el('fiveCmpBackHome').onclick=()=>show('home');
 // 既存の調査記録は変更せず、最終考察の画面だけを独立して表示。
 let sepiaTimer=null;
 function openSepiaReview(){
+ if(!allRouteVerified()){renderRouteMenu();return;}
  if(!eReviewedInPage){openEReview();return;}
  if(sepiaTimer!==null){clearTimeout(sepiaTimer);sepiaTimer=null;}
  const file=findFiveMap('circle');
@@ -1459,6 +1516,7 @@ function showCFlowStage(stage){
  window.scrollTo(0,0);
 }
 function openCThree(){
+ if(!routeVerified('route3')){renderRouteMenu();return;}
  show('cThree');
  showCFlowStage(1);
 }
@@ -1467,7 +1525,11 @@ el('routesCBridge').onclick=openCThree;
 el('cToBridges').onclick=()=>showCFlowStage(2);
 el('cBackOld').onclick=()=>showCFlowStage(1);
 el('cToSites').onclick=()=>showCFlowStage(3);
-el('cToTransport').onclick=openCTransport;
+el('cToTransport').onclick=()=>{
+ cBridgeReviewed=true;
+ try{localStorage.setItem(cBridgeReviewKey,'1')}catch(e){}
+ openCTransport();
+};
 el('cBackBridges').onclick=()=>showCFlowStage(2);
 cThreeSites.forEach((site,i)=>el(site.button).onclick=()=>showCThreeSite(i));
 // 動作テスト版：Cちゃんの画面からはラベル通り必ずルートナビ一覧に戻る。
